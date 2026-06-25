@@ -1,9 +1,7 @@
-import axios from 'axios';
+import apiClient from '../utils/apiClient';
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import { useSelector } from 'react-redux';
-
-export const apiUrl = import.meta.env.VITE_API_URL;
 
 const DashBaordComp = () => {
 
@@ -28,7 +26,7 @@ const DashBaordComp = () => {
 
         const fetchUser = async () => {
             try {
-                const fetchUserDetails = await axios.get(apiUrl+`/api/user/getusers?user=5`, {
+                const fetchUserDetails = await apiClient.get('/api/user/getusers?user=5', {
                     headers: {
                         Authorization: user.token
                     }
@@ -48,7 +46,7 @@ const DashBaordComp = () => {
 
         const fetchBlog = async () => {
             try {
-                const fetchBlogDetails = await axios.get(apiUrl+`/api/blog/get-all-blogs?limit=5`);
+                const fetchBlogDetails = await apiClient.get('/api/blog/get-all-blogs?limit=5');
 
                 if (fetchBlogDetails.status === 200) {
                     setBlogsData(fetchBlogDetails.data.blogs)
@@ -63,7 +61,7 @@ const DashBaordComp = () => {
 
         const fetchComments = async () => {
             try {
-                const fetchCommentDetails = await axios.get(apiUrl+`/api/comment/get-all-comments?limitComments=5`, {
+                const fetchCommentDetails = await apiClient.get('/api/comment/get-all-comments?limitComments=5', {
                     headers: {
                         Authorization: user.token
                     }
@@ -79,7 +77,7 @@ const DashBaordComp = () => {
             }
         }
 
-        if (user.isAdmin) {
+        if (user?.isAdmin) {
             fetchUser();
             fetchBlog();
             fetchComments();

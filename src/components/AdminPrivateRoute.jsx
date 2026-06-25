@@ -5,17 +5,15 @@ const AdminPrivateRoute = () => {
 
     const { user } = useSelector((state) => state.userSliceApp);
 
+    if (user && user.isAdmin) {
+        return <Outlet />;
+    }
 
+    if (user) {
+        return <Navigate to="/dashboard?tab=profile" replace />;
+    }
 
+    return <Navigate to="/login" replace />;
+};
 
-    return (
-        <>
-            <div className="">
-                {
-                    user && user.isAdmin ? <Outlet /> : <Navigate to={'/login'} />
-                }
-            </div>
-        </>
-    )
-}
 export default AdminPrivateRoute;

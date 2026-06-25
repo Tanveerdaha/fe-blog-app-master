@@ -9,7 +9,7 @@ import { IoMdSearch } from "react-icons/io";
 import { useDispatch, useSelector } from 'react-redux';
 import { changeTheme } from '../features/themeSlice';
 import { signOutSuccess, signOutUserFailure } from '../features/userSlice';
-import axios from 'axios';
+import apiClient from '../utils/apiClient';
 import { CgProfile } from "react-icons/cg";
 import { PiSignOutDuotone } from "react-icons/pi";
 import { MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
@@ -55,14 +55,14 @@ const Header = () => {
 
         try {
 
-            const signOutUser = await axios.post(apiUrl+`/api/user/signoutuser`)
+            const signOutUser = await apiClient.post('/api/user/signoutuser')
 
             if (signOutUser.data.success === true) {
                 dispatch(signOutSuccess());
             }
 
         } catch (error) {
-            signOutUserFailure(error);
+            dispatch(signOutUserFailure(error));
         }
 
 

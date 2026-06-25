@@ -3,8 +3,8 @@ import { useRef, useState } from 'react';
 import updateUserImg from '../assests/updateUserImg.png';
 import { LiaUserEditSolid } from "react-icons/lia";
 import { useSelector, useDispatch } from 'react-redux';
-import toast, { Toaster } from 'react-hot-toast';
-import axios from 'axios';
+import toast from 'react-hot-toast';
+import apiClient from '../utils/apiClient';
 import {
     userUpdateStart,
     userUpdateSuccess,
@@ -15,8 +15,6 @@ import {
 import Modal from './Modal.jsx';
 import getImageUrl from '../utils/getImageUrl';
 import { NavLink } from 'react-router-dom';
-
-const apiUrl = import.meta.env.VITE_API_URL;
 
 const DashboardProfile = () => {
 
@@ -74,7 +72,7 @@ const DashboardProfile = () => {
                 form.append('password', formData.password);
             }
 
-            const updateUser = await axios.put(apiUrl+
+            const updateUser = await apiClient.put(
                 `/api/user/updateuser/${user._id}`,
                 form,
                 {
@@ -111,7 +109,7 @@ const DashboardProfile = () => {
 
     const signOutHandle = async () => {
         try {
-            const signOutUser = await axios.post(apiUrl+'/api/user/signoutuser');
+            const signOutUser = await apiClient.post('/api/user/signoutuser');
 
             if (signOutUser.data.success === true) {
                 dispatch(signOutSuccess());
@@ -276,7 +274,6 @@ const DashboardProfile = () => {
                     )
                 }
 
-                <Toaster />
             </div>
         </>
     );

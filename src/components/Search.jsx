@@ -1,12 +1,10 @@
-import axios from 'axios';
+import apiClient from '../utils/apiClient';
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import blogLoader from '../assests/blogSpinner/BlogLoader';
+import BlogLoader from '../assests/blogSpinner/BlogLoader';
 import NodataImg from '../assests/No data.png';
 import getImageUrl from '../utils/getImageUrl';
-
-export const apiUrl = import.meta.env.VITE_API_URL;
 
 const Search = () => {
 
@@ -56,7 +54,7 @@ const Search = () => {
                 const stringConersionURL = URL.toString();
                 try {
                     setLoading(true);
-                    const response = await axios.get(apiUrl+`/api/blog/get-all-blogs?${stringConersionURL}`);
+                    const response = await apiClient.get(`/api/blog/get-all-blogs?${stringConersionURL}`);
 
                     if (response.status === 200) {
                         setLoading(false)
@@ -148,7 +146,7 @@ const Search = () => {
                 {/* right  screen*/}
 
                 {
-                    loading === true ? <blogLoader /> :
+                    loading === true ? <BlogLoader /> :
 
                         <div className="flex flex-wrap px-5 w-full my-10 gap-4 justify-center">
 
@@ -178,8 +176,10 @@ const Search = () => {
                                     :
 
                                     <div className="w-full flex  flex-col items-center">
-                                        <img src={NodataImg} className='w-96' />
-                                        <h1 className='text-xl  font-bold'>Oops ! No blogs found</h1>
+                                        <img src={NodataImg} className='w-96' alt="No data" />
+                                        <h1 className='text-xl  font-bold'>
+                                            {location.search ? 'Oops ! No blogs found' : 'Enter a search term or apply filters'}
+                                        </h1>
                                     </div>
                             }
                         </div>

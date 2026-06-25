@@ -3,15 +3,13 @@ import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom';
 import { AiOutlineComment } from "react-icons/ai";
 import feedbackImg from '../assests/typingImg.png'
-import toast, { Toaster } from 'react-hot-toast';
-import axios from 'axios';
+import toast from 'react-hot-toast';
+import apiClient from '../utils/apiClient';
 import UserComment from './UserComment';
 import getImageUrl from '../utils/getImageUrl';
 import { IoClose } from "react-icons/io5";
 import { ImWarning } from "react-icons/im";
 import Spinner from '../assests/spinner/Spinner';
-
-const apiUrl = import.meta.env.VITE_API_URL;
 
 const CommentCard = ({ blogId }) => {
 
@@ -63,7 +61,7 @@ const CommentCard = ({ blogId }) => {
                 return;
             }
             setLoading(true);
-            const addComment = await axios.post(apiUrl+`/api/comment/add-comment/`,
+            const addComment = await apiClient.post('/api/comment/add-comment/',
                 {
                     comment: commentData,
                     blogId: blogId,
@@ -94,12 +92,13 @@ const CommentCard = ({ blogId }) => {
     useEffect(() => {
         const getComment = async () => {
             try {
-                const comment = await axios.get(apiUrl+`/api/comment/get-comment/${blogId}`);
+                const comment = await apiClient.get(`/api/comment/get-comment/${blogId}`);
 
                 if (comment.status === 200) {
                     setComments(comment.data)
                 }
             } catch (error) {
+                toast.error('Failed to load comments.');
                 console.log(error.message);
             }
         }
@@ -117,7 +116,7 @@ const CommentCard = ({ blogId }) => {
                 return;
             }
 
-            const doLike = await axios.put(apiUrl+`/api/comment/like-the-comment/${commentId}`, { user: user._id }, {
+            const doLike = await apiClient.put(`/api/comment/like-the-comment/${commentId}`, { user: user._id }, {
                 headers: {
                     Authorization: user.token
                 },
@@ -138,6 +137,7 @@ const CommentCard = ({ blogId }) => {
                 }))
             }
         } catch (error) {
+            toast.error('Failed to like comment.');
             console.log(error.message);
         }
     }
@@ -173,7 +173,7 @@ const CommentCard = ({ blogId }) => {
     // Comment to delete if the delete if the confirm button is cliekd 
     const okToDeleteComment = async (propsCommentId) => {
         try {
-            const deleteResponse = await axios.delete(apiUrl+`/api/comment/delete-comment/${propsCommentId}`, {
+            const deleteResponse = await apiClient.delete(`/api/comment/delete-comment/${propsCommentId}`, {
                 headers: {
                     Authorization: user.token
                 },
@@ -256,7 +256,6 @@ const CommentCard = ({ blogId }) => {
                         </form>
 
                     </div>
-                    <Toaster />
                 </div >
             }
 

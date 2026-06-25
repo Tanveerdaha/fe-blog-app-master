@@ -2,17 +2,15 @@ import { FcGoogle } from "react-icons/fc";
 import loginImg from '../assests/loginImg.png';
 import { TiUserAdd } from "react-icons/ti";
 import { useState, useSyncExternalStore } from "react";
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
-import axios from 'axios';
+import apiClient from '../utils/apiClient';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { FaUserCog } from "react-icons/fa";
 import Spinner from "../assests/spinner/Spinner";
 import { loginStart, loginSuccess, loginFailure } from "../features/userSlice";
 import { useSelector } from 'react-redux';
 import OAuth from "../components/OAuth";
-
-export const apiUrl = import.meta.env.VITE_API_URL;
 
 const Login = () => {
 
@@ -67,14 +65,15 @@ const Login = () => {
             try {
                 dispatch(loginStart());
 
-                const loginUser = await axios.post(apiUrl+`/api/user/login`, formData);
+                const loginUser = await apiClient.post('/api/user/login', formData);
                 const response = loginUser.data.user;
                 dispatch(loginSuccess(response));
                 navigate('/');
 
             } catch (error) {
-                dispatch(loginFailure(error.response.data));
-                toast.error(error.response.data.message);
+                const message = error.response?.data?.message || 'Something went wrong. Please try again.';
+                dispatch(loginFailure(error.response?.data || message));
+                toast.error(message);
             }
         }
     };
@@ -141,7 +140,6 @@ const Login = () => {
 
                 </form>
             </div>
-            <Toaster />
         </>
     )
 }

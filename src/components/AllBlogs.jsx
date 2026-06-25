@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from "../utils/apiClient";
 import { useSelector } from "react-redux";
 import { Table, Toast } from "flowbite-react";
-import { NavLink } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import { NavLink, Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import BlogPopupModal from "./BlogPopupModal";
 import BlogLoader from "../assests/blogSpinner/BlogLoader";
-import { PiSmileySad } from "react-icons/pi";
 import getImageUrl from '../utils/getImageUrl';
-
-export const apiUrl = import.meta.env.VITE_API_URL;
 
 const AllBlogs = () => {
     const { user } = useSelector((state) => state.userSliceApp);
@@ -27,7 +24,7 @@ const AllBlogs = () => {
             const getBlogs = async () => {
                 setLoader(true);
                 try {
-                    const fetchBlogs = await axios.get(apiUrl+
+                    const fetchBlogs = await apiClient.get(
                         `/api/blog/get-all-blogs?userId=${user._id}`
                     );
 
@@ -61,7 +58,7 @@ const AllBlogs = () => {
     // Show More button api :
     const fetchBlogs = async (page = 2) => {
         try {
-            const response = await axios.get(apiUrl+
+            const response = await apiClient.get(
                 `/api/blog/get-all-blogs?${user._id}&page=${page}`
             );
             if (response.status === 200) {
@@ -234,14 +231,13 @@ const AllBlogs = () => {
                     )}
                 </div>
             ) : (
-                <div className="min-h-screen flex w-full justify-center items-center">
-                    <span className="flex md:items-center absolute top-72 left-50 md:static md:justify-center">
-                        <BlogLoader />
-                    </span>
+                <div className="min-h-screen flex flex-col w-full justify-center items-center gap-3 px-4">
+                    <p className="text-gray-500 text-center">Admin access is required to view all blogs.</p>
+                    <Link to="/dashboard?tab=profile" className="text-blue-500 hover:underline">
+                        Go to profile
+                    </Link>
                 </div>
             )}
-
-            <Toaster />
 
             {/*  Conditionally rendering the popup modal :  */}
             {blogModal && (

@@ -4,13 +4,11 @@ import { useLocation, NavLink } from 'react-router-dom';
 import { CgProfile } from "react-icons/cg";
 import { CiLogout } from "react-icons/ci";
 import { signOutSuccess, signOutUserFailure } from '../features/userSlice';
-import axios from 'axios';
+import apiClient from '../utils/apiClient';
 import { MdPostAdd } from "react-icons/md";
 import { FaUsersCog } from "react-icons/fa";
 import { FaRegCommentDots } from "react-icons/fa6";
 import { PiChartPieSliceFill } from "react-icons/pi";
-
-export const apiUrl = import.meta.env.VITE_API_URL;
 
 const DashboardSidebar = () => {
 
@@ -40,7 +38,7 @@ const DashboardSidebar = () => {
     const signOutHandle = async () => {
 
         try {
-            const signOutUser = await axios.post(apiUrl+`/api/user/signoutuser`);
+            const signOutUser = await apiClient.post('/api/user/signoutuser');
 
             if (signOutUser.data.success === true) {
                 dispatch(signOutSuccess());

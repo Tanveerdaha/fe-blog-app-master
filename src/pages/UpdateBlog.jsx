@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import toast, { Toaster } from 'react-hot-toast';
-import axios from 'axios';
+import toast from 'react-hot-toast';
+import apiClient from '../utils/apiClient';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -12,8 +12,7 @@ import {
     updateBlogSuccess
 } from '../features/blogSlice';
 import getImageUrl from '../utils/getImageUrl';
-
-const apiUrl = import.meta.env.VITE_API_URL;
+import BlogLoader from '../assests/blogSpinner/BlogLoader';
 
 const UpdateBlog = () => {
 
@@ -28,6 +27,9 @@ const UpdateBlog = () => {
     const [imagePreview, setImagePreview] = useState(null);
 
     const [formData, setFormData] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [notFound, setNotFound] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
     const blogImgChangeHandle = (e) => {
         const file = e.target.files[0];
@@ -56,22 +58,28 @@ const UpdateBlog = () => {
 
     const fetchBlog = async () => {
         try {
+            setLoading(true);
+            setNotFound(false);
 
-            const getBlog = await axios.get(apiUrl+
+            const getBlog = await apiClient.get(
                 `/api/blog/get-all-blogs?blogId=${blogId}`
             );
 
             if (getBlog.status === 200) {
-
                 const response = getBlog.data.blogs[0];
 
                 if (response) {
                     setFormData(response);
+                } else {
+                    setNotFound(true);
                 }
             }
 
         } catch (error) {
+            setNotFound(true);
             console.log(error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -101,6 +109,7 @@ const UpdateBlog = () => {
         try {
 
             dispatch(updateBlogStart());
+            setSubmitting(true);
 
             const blogForm = new FormData();
 
@@ -112,7 +121,7 @@ const UpdateBlog = () => {
                 blogForm.append('blogImgFile', blogImage);
             }
 
-            const updateBlog = await axios.put(apiUrl+
+            const updateBlog = await apiClient.put(
                 `/api/blog/update-blog/${blogId}/${user._id}`,
                 blogForm,
                 {
@@ -144,10 +153,35 @@ const UpdateBlog = () => {
             );
 
             console.error(error);
+        } finally {
+            setSubmitting(false);
         }
     };
 
     const displayImage = imagePreview || getImageUrl(formData?.blogImgFile);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <BlogLoader />
+            </div>
+        );
+    }
+
+    if (notFound) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+                <h1 className="text-2xl font-semibold">Blog not found</h1>
+                <p className="text-gray-500">Unable to load this blog for editing.</p>
+                <button
+                    onClick={() => navigate('/dashboard?tab=blogs')}
+                    className="px-4 py-2 bg-violet-500 text-white rounded-md font-semibold"
+                >
+                    Back to blogs
+                </button>
+            </div>
+        );
+    }
 
     return (
         <>
@@ -232,17 +266,16 @@ const UpdateBlog = () => {
 
                     <button
                         type="submit"
-                        className="bg-gray-700 text-white font-semibold active:bg-gray-800 py-2 rounded-md my-5"
+                        disabled={submitting}
+                        className="bg-gray-700 text-white font-semibold active:bg-gray-800 py-2 rounded-md my-5 disabled:opacity-50"
                         onClick={updateBlogPost}
                     >
-                        Update Changes
+                        {submitting ? 'Updating...' : 'Update Changes'}
                     </button>
 
                 </form>
 
             </div>
-
-            <Toaster />
         </>
     );
 };

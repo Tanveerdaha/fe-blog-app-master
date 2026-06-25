@@ -1,14 +1,12 @@
 import registerImg from '../assests/registerImg.png';
 import { TiUserAdd } from "react-icons/ti";
 import { useState } from "react";
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useSelector } from 'react-redux';
-import axios from 'axios';
+import apiClient from '../utils/apiClient';
 import { useNavigate, NavLink } from 'react-router-dom';
 import Spinner from '../assests/spinner/Spinner';
 import OAuth from '../components/OAuth';
-
-export const apiUrl = import.meta.env.VITE_API_URL;
 
 const Register = () => {
 
@@ -77,7 +75,7 @@ const Register = () => {
 
       try {
         setLoading(true);
-        const registerUser = await axios.post(apiUrl+`/api/user/register`, formData);
+        const registerUser = await apiClient.post('/api/user/register', formData);
         setLoading(false);
         toast.success(registerUser.data.message);
         setTimeout(() => {
@@ -86,7 +84,8 @@ const Register = () => {
 
       } catch (error) {
         setLoading(false);
-        toast.error(error.response.data.message)
+        const message = error.response?.data?.message || 'Something went wrong. Please try again.';
+        toast.error(message)
       }
     }
   }
@@ -160,8 +159,6 @@ const Register = () => {
         </form>
 
       </div>
-
-      <Toaster />
     </>
   )
 }

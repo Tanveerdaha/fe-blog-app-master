@@ -3,12 +3,11 @@ import { useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { addBlogStart, addBlogFailure, addBlogSuccess } from '../features/blogSlice';
-import toast, { Toaster } from 'react-hot-toast';
-import axios from 'axios';
+import toast from 'react-hot-toast';
+import apiClient from '../utils/apiClient';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-
-export const apiUrl = import.meta.env.VITE_API_URL;
+import Spinner from '../assests/spinner/Spinner';
 
 const CreateBlog = () => {
 
@@ -24,6 +23,7 @@ const CreateBlog = () => {
     const [formData, setFormData] = useState({
         user: user
     });
+    const [submitting, setSubmitting] = useState(false);
 
     const blogImgChangeHandle = (e) => {
         const file = e.target.files[0];
@@ -76,6 +76,7 @@ const CreateBlog = () => {
         try {
 
             dispatch(addBlogStart());
+            setSubmitting(true);
 
             const blogForm = new FormData();
 
@@ -90,7 +91,7 @@ const CreateBlog = () => {
                 blogForm.append('blogImgFile', blogImage);
             }
 
-            const addBlog = await axios.post(apiUrl+
+            const addBlog = await apiClient.post(
                 '/api/blog/post-blog',
                 blogForm,
                 {
@@ -122,6 +123,8 @@ const CreateBlog = () => {
             );
 
             console.log(error);
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -202,17 +205,20 @@ const CreateBlog = () => {
 
                     <button
                         type="submit"
-                        className="bg-gray-700 text-white font-semibold active:bg-gray-800 py-2 rounded-md my-5"
+                        disabled={submitting}
+                        className="bg-gray-700 text-white font-semibold active:bg-gray-800 py-2 rounded-md my-5 disabled:opacity-50"
                         onClick={publishBlogBtn}
                     >
-                        Publish Blog
+                        {submitting ? (
+                            <div className="flex justify-center"><Spinner /></div>
+                        ) : (
+                            'Publish Blog'
+                        )}
                     </button>
 
                 </form>
 
             </div>
-
-            <Toaster />
         </>
     );
 };

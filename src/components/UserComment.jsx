@@ -1,4 +1,4 @@
-import axios from 'axios'
+import apiClient from '../utils/apiClient';
 import React, { useEffect, useState } from 'react'
 import moment from 'moment';
 import { useSelector } from 'react-redux';
@@ -6,7 +6,7 @@ import { AiFillLike } from "react-icons/ai";
 import { RiEdit2Fill } from "react-icons/ri";
 import { MdDeleteForever } from "react-icons/md";
 import Spinner from '../assests/spinner/Spinner';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import getImageUrl from '../utils/getImageUrl';
 
 
@@ -31,7 +31,7 @@ const UserComment = ({ comments, likeTheComment, updateComment, deleteComment })
         const getUserComments = async () => {
 
             try {
-                const getUser = await axios.get(apiUrl+`/api/user/get-user-comment/${comments.userId}`);
+                const getUser = await apiClient.get(`/api/user/get-user-comment/${comments.userId}`);
                 if (getUser.status === 200) {
 
                     setUser(getUser.data)
@@ -59,7 +59,7 @@ const UserComment = ({ comments, likeTheComment, updateComment, deleteComment })
     const commentSaveHandle = async () => {
         try {
             setLoading(true);
-            const response = await axios.put(apiUrl+`/api/comment/edit-comment/${comments._id}`, { comment: textAreaVal, currentUser }, {
+            const response = await apiClient.put(`/api/comment/edit-comment/${comments._id}`, { comment: textAreaVal, currentUser }, {
                 headers: {
                     Authorization: currentUser.token
                 }
@@ -96,7 +96,7 @@ const UserComment = ({ comments, likeTheComment, updateComment, deleteComment })
                 {/* If the editor is open  */}
 
                 {
-                    editorOpen && (currentUser._id === comments.userId || currentUser.isAdmin)
+                    editorOpen && currentUser && (currentUser._id === comments.userId || currentUser.isAdmin)
                         ?
                         <div className="">
                             <form action="" className='flex transition-all flex-col gap-1' onSubmit={submitHandle}>
@@ -181,7 +181,6 @@ const UserComment = ({ comments, likeTheComment, updateComment, deleteComment })
                         </>
                 }
             </div >
-            <Toaster />
         </>
     )
 }

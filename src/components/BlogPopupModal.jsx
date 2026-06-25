@@ -1,11 +1,9 @@
-import axios from 'axios';
+import apiClient from '../utils/apiClient';
 import React from 'react'
 import toast from 'react-hot-toast';
 import { ImWarning } from 'react-icons/im';
 import { IoClose } from 'react-icons/io5';
 import { useSelector } from 'react-redux';
-
-export const apiUrl = import.meta.env.VITE_API_URL;
 
 const BlogPopupModal = ({ setBlogModal, blogId, setUserBlogs }) => {
 
@@ -23,7 +21,7 @@ const BlogPopupModal = ({ setBlogModal, blogId, setUserBlogs }) => {
     const deleteBlog = async () => {
 
         try {
-            const deleteBlogInfo = await axios.delete(apiUrl+`/api/blog/delete-blog/${blogId}/${user._id}`, {
+            const deleteBlogInfo = await apiClient.delete(`/api/blog/delete-blog/${blogId}/${user._id}`, {
                 data: {
                     user: user
                 },
@@ -37,6 +35,7 @@ const BlogPopupModal = ({ setBlogModal, blogId, setUserBlogs }) => {
                 setUserBlogs((blogs) => blogs.filter(blog => blog._id !== blogId));
             }
         } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to delete blog');
             console.log(error.message);
         }
     };

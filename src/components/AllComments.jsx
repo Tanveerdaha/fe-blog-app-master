@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import axios from "axios";
+import apiClient from "../utils/apiClient";
 import { Table } from "flowbite-react";
 import Spinner from "../assests/spinner/Spinner";
 import { NavLink } from "react-router-dom";
 import { ImWarning } from "react-icons/im";
 import { IoClose } from "react-icons/io5";
-import toast, { Toaster } from "react-hot-toast";
-
-export const apiUrl = import.meta.env.VITE_API_URL;
-
+import toast from "react-hot-toast";
 
 const AllComments = () => {
     const { user } = useSelector((state) => state.userSliceApp);
@@ -34,7 +31,7 @@ const AllComments = () => {
         if (user.isAdmin) {
             const getComments = async () => {
                 try {
-                    const commentInfo = await axios.get(apiUrl+`/api/comment/get-all-comments`, {
+                    const commentInfo = await apiClient.get('/api/comment/get-all-comments', {
                         headers: {
                             Authorization: user.token,
                         },
@@ -65,7 +62,7 @@ const AllComments = () => {
     // Show more comments 
     const showMoreCommentButton = async () => {
         try {
-            const response = await axios.get(apiUrl+`/api/comment/get-all-comments?page=${startPage + 1}`, {
+            const response = await apiClient.get(`/api/comment/get-all-comments?page=${startPage + 1}`, {
                 headers: {
                     Authorization: user.token
                 },
@@ -96,7 +93,7 @@ const AllComments = () => {
 
     const yesToDeleteComment = async () => {
         try {
-            const response = await axios.delete(apiUrl+`/api/comment/delete-comment/${commentIdToDelete}`, {
+            const response = await apiClient.delete(`/api/comment/delete-comment/${commentIdToDelete}`, {
 
                 data: {
                     user: user
@@ -293,7 +290,6 @@ const AllComments = () => {
                     </div>
                 </div>
             )}
-            <Toaster />
         </>
     );
 };

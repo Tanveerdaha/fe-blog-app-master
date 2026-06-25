@@ -1,54 +1,38 @@
 import { useSelector } from 'react-redux';
-import heroImg from '../assests/homeImg.png'
 import { motion } from 'framer-motion';
-import GithubCard from '../components/GithubCard';
-import axios from 'axios'
+import apiClient from '../utils/apiClient';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Spinner from '../assests/spinner/Spinner';
-
-const rawApiUrl = import.meta.env.VITE_API_URL || '';
-export const apiUrl = rawApiUrl.replace(/\/$/, '');
-const getImageUrl = (imagePath) => {
-  if (!imagePath) return '';
-  if (imagePath.startsWith('http')) return imagePath;
-  if (imagePath.startsWith('/')) return `${apiUrl}${imagePath}`;
-  return `${apiUrl}/${imagePath}`;
-};
+import getImageUrl from '../utils/getImageUrl';
+import GithubCard from '../components/GithubCard';
 
 const Home = () => {
-  // const { blogs } = useSelector((state) => state.blogSliceApp.blogs);
-
   const [recentBlogs, setRecentBlogs] = useState([]);
-
   const { theme } = useSelector((state) => state.themeSliceApp);
-
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
+  const getAllBlogs = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await apiClient.get('/api/blog/get-all-blogs?limit=9');
 
-
+      if (response.status === 200) {
+        setRecentBlogs(response.data.blogs)
+      }
+    } catch (err) {
+      setError('Failed to load blogs. Please try again.');
+      console.log(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-
-    const getAllBlogs = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${apiUrl}/api/blog/get-all-blogs?limit=9`);
-
-        if (response.status === 200) {
-          setRecentBlogs(response.data.blogs)
-          setLoading(false)
-        }
-        setLoading(false)
-      } catch (error) {
-        setLoading(false)
-        console.log(error.message);
-      }
-    }
     getAllBlogs();
   }, []);
-
-
 
   return (
     <>
@@ -56,8 +40,6 @@ const Home = () => {
 
         <div className="mt-32 flex justify-around flex-wrap gap-4">
 
-
-          {/* left content  */}
           <div className="flex flex-col gap-5 w-10/12 md:w-1/2">
 
             <motion.h1 className='md:text-4xl lg:text-4xl text-xl font-bold text-transparent  bg-clip-text bg-gradient-to-r from-purple-500 to-yellow-300'
@@ -73,8 +55,6 @@ const Home = () => {
               <p>I'm thrilled to have you here.</p>
             </motion.h1>
 
-
-
             <hr className='' />
 
             <motion.p className='text-sm text-justify  leading-8'
@@ -87,13 +67,12 @@ const Home = () => {
               }}
 
             >
-              Hello and welcome to my tech corner! 🖥️ I’m Muhammad tanveer, a passionate <span className='text-blue-400 font-semibold'>MERN Stack</span> developer. Explore my latest projects, tutorials, and insights into web development. Here you'll find a variety of articles topics such on web development,and programming languages
+              Hello and welcome to my tech corner! 🖥️ I'm Muhammad tanveer, a passionate <span className='text-blue-400 font-semibold'>MERN Stack</span> developer. Explore my latest projects, tutorials, and insights into web development. Here you'll find a variety of articles topics such on web development,and programming languages
             </motion.p>
           </div>
         </div>
         <div className="flex justify-center w-full">
           <GithubCard />
-
         </div>
 
         <h1 className='text-2xl text-center my-5'>Recent Blogs</h1>
@@ -105,7 +84,17 @@ const Home = () => {
               <Spinner />
             </span>
 
-            :
+            : error ? (
+              <div className="flex flex-col items-center gap-3 my-10">
+                <p className="text-red-500">{error}</p>
+                <button
+                  onClick={getAllBlogs}
+                  className="px-4 py-2 bg-violet-500 text-white rounded-md font-semibold"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
             <div className="flex flex-wrap px-5 w-full my-10 gap-4 justify-center">
               {
                 recentBlogs && recentBlogs.map((value, index) => {
@@ -124,9 +113,8 @@ const Home = () => {
                 })
               }
             </div>
+            )
         }
-
-
 
       </div >
     </>

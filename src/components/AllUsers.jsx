@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import axios from "axios";
+import apiClient from "../utils/apiClient";
 import { Table } from "flowbite-react";
 import Spinner from "../assests/spinner/Spinner";
 import { NavLink } from "react-router-dom";
@@ -8,12 +8,8 @@ import { RxCross2 } from "react-icons/rx";
 import { TiTick } from "react-icons/ti";
 import { ImWarning } from "react-icons/im";
 import { IoClose } from "react-icons/io5";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import getImageUrl from '../utils/getImageUrl';
-
-const apiUrl = import.meta.env.VITE_API_URL;
-
-
 
 const AllUsers = () => {
 
@@ -34,8 +30,8 @@ const AllUsers = () => {
         if (user.isAdmin) {
             const getUsers = async () => {
                 try {
-                    const userInfo = await axios.get(apiUrl+
-                        `/api/user/getusers`,
+                    const userInfo = await apiClient.get(
+                        '/api/user/getusers',
                         {
                             headers: {
                                 Authorization: user.token,
@@ -73,7 +69,7 @@ const AllUsers = () => {
         try {
             setShowModal(false)
 
-            const userDelete = await axios.delete(apiUrl+`/api/user/deleteuser/${userId}`, {
+            const userDelete = await apiClient.delete(`/api/user/deleteuser/${userId}`, {
 
                 data: {
                     user: user
@@ -95,21 +91,18 @@ const AllUsers = () => {
 
 
     const showMoreUserButton = async () => {
-
-        setStartPage(startPage + 1);
+        const nextPage = startPage;
 
         try {
-            const showMoreUser = await axios.get(apiUrl+`/api/user/getusers?page=${startPage}`, {
+            const showMoreUser = await apiClient.get(`/api/user/getusers?page=${nextPage}`, {
                 headers: {
                     Authorization: user.token
                 }
             })
             if (showMoreUser.status === 200) {
-                console.log(showMoreUser.data.user);
-
                 if (showMoreUser.data.user.length > 0) {
                     setStartPage((prevPage) => prevPage + 1)
-                    setAllUsers([...prevUsers, ...showMoreUser.data.user]);
+                    setAllUsers((prev) => [...prev, ...showMoreUser.data.user]);
                 } else {
                     setShowMoreButton(false);
                 }
@@ -308,8 +301,7 @@ const AllUsers = () => {
                     </div>
                 </div>
             }
-            <Toaster />
-        </ >
+        </>
     );
 };
 

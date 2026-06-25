@@ -1,6 +1,6 @@
 import DashboardSidebar from "../components/DashboardSidebar"
 import DashboardProfile from "../components/DashboardProfile"
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import AllBlogs from '../components/AllBlogs';
 import AllUsers from "../components/AllUsers";
@@ -9,46 +9,41 @@ import DashBaordComp from "../components/DashBaordComp";
 
 const Dashboard = () => {
 
-
     const location = useLocation();
-    const [tab, setTab] = useState('');
-
-
+    const navigate = useNavigate();
+    const [tab, setTab] = useState('profile');
 
     useEffect(() => {
-
         const urlParams = new URLSearchParams(location.search);
         const getTab = urlParams.get('tab');
-        setTab(getTab)
 
-    }, [location.search]);
-
+        if (!getTab) {
+            navigate('/dashboard?tab=profile', { replace: true });
+            setTab('profile');
+        } else {
+            setTab(getTab);
+        }
+    }, [location.search, navigate]);
 
     return (
         <>
             <div className="flex md:flex-row flex-col ">
-                {/* Sidebar  */}
                 <div>
                     <DashboardSidebar />
                 </div>
 
-
-                {/* DashTab */}
                 <div className={`${tab === 'dash' && 'flex w-full'}`}>
                     {tab === 'dash' && <DashBaordComp />}
                 </div>
 
-                {/* Profile */}
                 <div className={`${tab === 'profile' && 'flex justify-center w-full'}`}>
                     {tab === 'profile' && <DashboardProfile />}
                 </div>
 
-                {/* All blog  */}
                 <div className={`${tab === 'blogs' && 'flex w-full'}`}>
                     {tab === 'blogs' && <AllBlogs />}
                 </div>
 
-                {/* All users   */}
                 <div className={`${tab === 'users' && 'flex w-full'}`}>
                     {tab === 'users' && <AllUsers />}
                 </div>
@@ -60,4 +55,4 @@ const Dashboard = () => {
         </>
     )
 }
-export default Dashboard
+export default Dashboard;

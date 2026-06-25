@@ -1,19 +1,11 @@
 import { FcGoogle } from "react-icons/fc";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth'
 import { app } from '../firebase/firebaseConfig';
-import axios from 'axios';
+import apiClient from '../utils/apiClient';
 import { loginStart, loginSuccess, loginFailure } from '../features/userSlice'
 import { useDispatch } from 'react-redux';
 import { Navigate, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-
-
-
-
-
-export const apiUrl = import.meta.env.VITE_API_URL;
-
-
 
 const OAuth = () => {
 
@@ -39,7 +31,7 @@ const OAuth = () => {
             }
 
             dispatch(loginStart());
-            const addGoogleUser = await axios.post(apiUrl+'/api/user/googleuser', userData);
+            const addGoogleUser = await apiClient.post('/api/user/googleuser', userData);
             if (addGoogleUser.data.user) {
                 dispatch(loginSuccess(addGoogleUser.data.user));
                 navigate('/');

@@ -1,12 +1,10 @@
 import { IoClose } from "react-icons/io5";
 import { ImWarning } from "react-icons/im";
-import axios from "axios";
+import apiClient from "../utils/apiClient";
 import { deleteUserStart, deleteUserSuccess, deleteUserFailure, } from "../features/userSlice";
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import toast from "react-hot-toast";
-
-export const apiUrl = import.meta.env.VITE_API_URL;
 
 const Modal = ({ setShowModal, user }) => {
 
@@ -26,7 +24,7 @@ const Modal = ({ setShowModal, user }) => {
 
         try {
             dispatch(deleteUserStart());
-            const deleteUserInfo = await axios.delete(apiUrl+`/api/user/deleteuser/${user._id}`, {
+            const deleteUserInfo = await apiClient.delete(`/api/user/deleteuser/${user._id}`, {
 
                 data: {
                     user: user
