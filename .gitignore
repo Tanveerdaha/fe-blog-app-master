@@ -28,9 +28,14 @@ yarn-error.log*
 .env*.local
 .env
 
+package-lock.json
+
+vite.config.js.timestamp*
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+dist/
