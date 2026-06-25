@@ -90,7 +90,7 @@ const ShowBlog = () => {
                                 </div>
 
                                 <div className=" flex  justify-center text-center my-10">
-                                    <img src={slug && slug.blogImgFile} className='rounded-sm object-cover' alt="blog image" />
+                                    <img src={slug && apiUrl+'/'+slug.blogImgFile} className='rounded-sm object-cover' alt="blog image" />
                                 </div>
 
                                 <div className="flex justify-center">

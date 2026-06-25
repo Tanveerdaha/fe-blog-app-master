@@ -105,7 +105,7 @@ const Home = () => {
                   return (
                     <div key={index} className={`shadow-md duration-300 border hover:scale-[99%]  transition-all w-96 rounded-tl-xl rounded-br-xl pb-5 cursor-pointer ${theme === 'dark' ? 'border-gray-700' : 'border-gray-300'}`}>
                       <Link to={`/blog/${value.slug}`}>
-                        <img src={value.blogImgFile} className='hover:scale-[99%] duration-300  transition-all w-96 h-60 rounded-tl-xl rounded-br-xl' />
+                        <img src={apiUrl+'/'+value.blogImgFile} className='hover:scale-[99%] duration-300  transition-all w-96 h-60 rounded-tl-xl rounded-br-xl' />
 
                         <div className="px-3">
                           <p className='text-lg md:text-xl'>{value.blogTitle}</p>
