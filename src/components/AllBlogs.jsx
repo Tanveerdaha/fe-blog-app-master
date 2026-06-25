@@ -8,6 +8,8 @@ import BlogPopupModal from "./BlogPopupModal";
 import BlogLoader from "../assests/blogSpinner/BlogLoader";
 import { PiSmileySad } from "react-icons/pi";
 
+export const apiUrl = import.meta.env.VITE_API_URL;
+
 const AllBlogs = () => {
     const { user } = useSelector((state) => state.userSliceApp);
     const { theme } = useSelector((state) => state.themeSliceApp);
@@ -24,7 +26,7 @@ const AllBlogs = () => {
             const getBlogs = async () => {
                 setLoader(true);
                 try {
-                    const fetchBlogs = await axios.get(
+                    const fetchBlogs = await axios.get(apiUrl+
                         `/api/blog/get-all-blogs?userId=${user._id}`
                     );
 
@@ -58,7 +60,7 @@ const AllBlogs = () => {
     // Show More button api :
     const fetchBlogs = async (page = 2) => {
         try {
-            const response = await axios.get(
+            const response = await axios.get(apiUrl+
                 `/api/blog/get-all-blogs?${user._id}&page=${page}`
             );
             if (response.status === 200) {

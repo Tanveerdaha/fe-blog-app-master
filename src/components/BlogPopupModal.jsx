@@ -5,9 +5,7 @@ import { ImWarning } from 'react-icons/im';
 import { IoClose } from 'react-icons/io5';
 import { useSelector } from 'react-redux';
 
-
-
-
+export const apiUrl = import.meta.env.VITE_API_URL;
 
 const BlogPopupModal = ({ setBlogModal, blogId, setUserBlogs }) => {
 
@@ -25,7 +23,7 @@ const BlogPopupModal = ({ setBlogModal, blogId, setUserBlogs }) => {
     const deleteBlog = async () => {
 
         try {
-            const deleteBlogInfo = await axios.delete(`/api/blog/delete-blog/${blogId}/${user._id}`, {
+            const deleteBlogInfo = await axios.delete(apiUrl+`/api/blog/delete-blog/${blogId}/${user._id}`, {
                 data: {
                     user: user
                 },

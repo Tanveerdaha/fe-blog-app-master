@@ -8,6 +8,8 @@ import { ImWarning } from "react-icons/im";
 import { IoClose } from "react-icons/io5";
 import toast, { Toaster } from "react-hot-toast";
 
+export const apiUrl = import.meta.env.VITE_API_URL;
+
 
 const AllComments = () => {
     const { user } = useSelector((state) => state.userSliceApp);
@@ -32,7 +34,7 @@ const AllComments = () => {
         if (user.isAdmin) {
             const getComments = async () => {
                 try {
-                    const commentInfo = await axios.get(`/api/comment/get-all-comments`, {
+                    const commentInfo = await axios.get(apiUrl+`/api/comment/get-all-comments`, {
                         headers: {
                             Authorization: user.token,
                         },
@@ -63,7 +65,7 @@ const AllComments = () => {
     // Show more comments 
     const showMoreCommentButton = async () => {
         try {
-            const response = await axios.get(`/api/comment/get-all-comments?page=${startPage + 1}`, {
+            const response = await axios.get(apiUrl+`/api/comment/get-all-comments?page=${startPage + 1}`, {
                 headers: {
                     Authorization: user.token
                 },
@@ -94,7 +96,7 @@ const AllComments = () => {
 
     const yesToDeleteComment = async () => {
         try {
-            const response = await axios.delete(`/api/comment/delete-comment/${commentIdToDelete}`, {
+            const response = await axios.delete(apiUrl+`/api/comment/delete-comment/${commentIdToDelete}`, {
 
                 data: {
                     user: user

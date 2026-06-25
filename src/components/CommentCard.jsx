@@ -10,11 +10,7 @@ import { IoClose } from "react-icons/io5";
 import { ImWarning } from "react-icons/im";
 import Spinner from '../assests/spinner/Spinner';
 
-
-
-
-
-
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const CommentCard = ({ blogId }) => {
 
@@ -66,7 +62,7 @@ const CommentCard = ({ blogId }) => {
                 return;
             }
             setLoading(true);
-            const addComment = await axios.post(`/api/comment/add-comment/`,
+            const addComment = await axios.post(apiUrl+`/api/comment/add-comment/`,
                 {
                     comment: commentData,
                     blogId: blogId,
@@ -97,7 +93,7 @@ const CommentCard = ({ blogId }) => {
     useEffect(() => {
         const getComment = async () => {
             try {
-                const comment = await axios.get(`/api/comment/get-comment/${blogId}`);
+                const comment = await axios.get(apiUrl+`/api/comment/get-comment/${blogId}`);
 
                 if (comment.status === 200) {
                     setComments(comment.data)
@@ -120,7 +116,7 @@ const CommentCard = ({ blogId }) => {
                 return;
             }
 
-            const doLike = await axios.put(`/api/comment/like-the-comment/${commentId}`, { user: user._id }, {
+            const doLike = await axios.put(apiUrl+`/api/comment/like-the-comment/${commentId}`, { user: user._id }, {
                 headers: {
                     Authorization: user.token
                 },
@@ -176,7 +172,7 @@ const CommentCard = ({ blogId }) => {
     // Comment to delete if the delete if the confirm button is cliekd 
     const okToDeleteComment = async (propsCommentId) => {
         try {
-            const deleteResponse = await axios.delete(`/api/comment/delete-comment/${propsCommentId}`, {
+            const deleteResponse = await axios.delete(apiUrl+`/api/comment/delete-comment/${propsCommentId}`, {
                 headers: {
                     Authorization: user.token
                 },
@@ -212,7 +208,7 @@ const CommentCard = ({ blogId }) => {
 
                     <div className="">
 
-                        <p className='flex items-center lg:text-base sm:text-xs md:text-sm gap-3 justify-center '>Sign in as :<Link to={'/dashboard?tab=profile'} className='flex font-semibold text-sm text-teal-500 hover:underline cursor-pointer items-center'> <img src={"http://localhost:5000"+user.profilePicture} className='w-7 h-7 rounded-full' /> @{user.username}</Link></p>
+                        <p className='flex items-center lg:text-base sm:text-xs md:text-sm gap-3 justify-center '>Sign in as :<Link to={'/dashboard?tab=profile'} className='flex font-semibold text-sm text-teal-500 hover:underline cursor-pointer items-center'> <img src={apiUrl+user.profilePicture} className='w-7 h-7 rounded-full' /> @{user.username}</Link></p>
                     </div>
 
                     :

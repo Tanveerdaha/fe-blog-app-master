@@ -5,6 +5,8 @@ import { FaLink } from "react-icons/fa6";
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast'
 
+export const apiUrl = import.meta.env.VITE_API_URL;
+
 const ForgetPassword = () => {
 
     const { theme } = useSelector((state) => state.themeSliceApp);
@@ -17,7 +19,7 @@ const ForgetPassword = () => {
     const sendResetPasswordLink = async () => {
 
         try {
-            const response = await axios.post(`/api/user/reset-password`, { email: userEmail });
+            const response = await axios.post(apiUrl+`/api/user/reset-password`, { email: userEmail });
 
             if (response.status === 200) {
                 console.log(response.data);

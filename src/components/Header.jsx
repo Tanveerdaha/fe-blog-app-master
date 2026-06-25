@@ -17,7 +17,7 @@ import { motion } from 'framer-motion';
 import Search from './Search';
 
 
-
+const apiUrl = import.meta.env.VITE_API_URL;
 
 
 const Header = () => {
@@ -55,7 +55,7 @@ const Header = () => {
 
         try {
 
-            const signOutUser = await axios.post(`/api/user/signoutuser`)
+            const signOutUser = await axios.post(apiUrl+`/api/user/signoutuser`)
 
             if (signOutUser.data.success === true) {
                 dispatch(signOutSuccess());
@@ -167,7 +167,7 @@ const Header = () => {
                     {
                         user ?
                             <div className=" cursor-pointer relative" onClick={() => setDropDown(!dropDown)}>
-                                <img src={user && "http://localhost:5000"+user.profilePicture} className='md:w-11 md:h-11 rounded-full' />
+                                <img src={user && apiUrl+user.profilePicture} className='md:w-11 md:h-11 rounded-full' />
 
                                 {/* Dropdown Menu  */}
 

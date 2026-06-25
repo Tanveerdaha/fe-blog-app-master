@@ -12,6 +12,8 @@ import { loginStart, loginSuccess, loginFailure } from "../features/userSlice";
 import { useSelector } from 'react-redux';
 import OAuth from "../components/OAuth";
 
+export const apiUrl = import.meta.env.VITE_API_URL;
+
 const Login = () => {
 
     const navigate = useNavigate();
@@ -65,7 +67,7 @@ const Login = () => {
             try {
                 dispatch(loginStart());
 
-                const loginUser = await axios.post(`/api/user/login`, formData);
+                const loginUser = await axios.post(apiUrl+`/api/user/login`, formData);
                 const response = loginUser.data.user;
                 dispatch(loginSuccess(response));
                 navigate('/');

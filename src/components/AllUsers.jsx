@@ -10,6 +10,7 @@ import { ImWarning } from "react-icons/im";
 import { IoClose } from "react-icons/io5";
 import toast, { Toaster } from "react-hot-toast";
 
+const apiUrl = import.meta.env.VITE_API_URL;
 
 
 
@@ -32,7 +33,7 @@ const AllUsers = () => {
         if (user.isAdmin) {
             const getUsers = async () => {
                 try {
-                    const userInfo = await axios.get(
+                    const userInfo = await axios.get(apiUrl+
                         `/api/user/getusers`,
                         {
                             headers: {
@@ -71,7 +72,7 @@ const AllUsers = () => {
         try {
             setShowModal(false)
 
-            const userDelete = await axios.delete(`/api/user/deleteuser/${userId}`, {
+            const userDelete = await axios.delete(apiUrl+`/api/user/deleteuser/${userId}`, {
 
                 data: {
                     user: user
@@ -97,7 +98,7 @@ const AllUsers = () => {
         setStartPage(startPage + 1);
 
         try {
-            const showMoreUser = await axios.get(`/api/user/getusers?page=${startPage}`, {
+            const showMoreUser = await axios.get(apiUrl+`/api/user/getusers?page=${startPage}`, {
                 headers: {
                     Authorization: user.token
                 }
@@ -194,7 +195,7 @@ const AllUsers = () => {
                                                 <Table.Cell className="  flex justify-center ">
                                                     <NavLink className="text-center" to={`/blog`}>
                                                         <img
-                                                            src={"http://localhost:5000"+user.profilePicture}
+                                                            src={apiUrl+user.profilePicture}
                                                             alt="couldn't load image"
                                                             className="w-10 text-center rounded-full h-10 md:rounded-full "
                                                         />

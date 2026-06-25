@@ -5,10 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import blogLoader from '../assests/blogSpinner/BlogLoader';
 import NodataImg from '../assests/No data.png';
 
-
-
-
-
+export const apiUrl = import.meta.env.VITE_API_URL;
 
 const Search = () => {
 
@@ -58,7 +55,7 @@ const Search = () => {
                 const stringConersionURL = URL.toString();
                 try {
                     setLoading(true);
-                    const response = await axios.get(`/api/blog/get-all-blogs?${stringConersionURL}`);
+                    const response = await axios.get(apiUrl+`/api/blog/get-all-blogs?${stringConersionURL}`);
 
                     if (response.status === 200) {
                         setLoading(false)

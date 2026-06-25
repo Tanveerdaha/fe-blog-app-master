@@ -7,14 +7,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Spinner from '../assests/spinner/Spinner';
 
-
-
-
-
-
-
-
-
+export const apiUrl = import.meta.env.VITE_API_URL;
 
 const Home = () => {
   // const { blogs } = useSelector((state) => state.blogSliceApp.blogs);
@@ -33,7 +26,7 @@ const Home = () => {
     const getAllBlogs = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`/api/blog/get-all-blogs?limit=9`);
+        const response = await axios.get(apiUrl+`/api/blog/get-all-blogs?limit=9`);
 
         if (response.status === 200) {
           setRecentBlogs(response.data.blogs)

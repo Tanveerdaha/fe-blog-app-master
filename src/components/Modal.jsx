@@ -6,8 +6,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import toast from "react-hot-toast";
 
-
-
+export const apiUrl = import.meta.env.VITE_API_URL;
 
 const Modal = ({ setShowModal, user }) => {
 
@@ -27,7 +26,7 @@ const Modal = ({ setShowModal, user }) => {
 
         try {
             dispatch(deleteUserStart());
-            const deleteUserInfo = await axios.delete(`/api/user/deleteuser/${user._id}`, {
+            const deleteUserInfo = await axios.delete(apiUrl+`/api/user/deleteuser/${user._id}`, {
 
                 data: {
                     user: user

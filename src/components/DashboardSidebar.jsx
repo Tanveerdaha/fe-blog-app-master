@@ -10,7 +10,7 @@ import { FaUsersCog } from "react-icons/fa";
 import { FaRegCommentDots } from "react-icons/fa6";
 import { PiChartPieSliceFill } from "react-icons/pi";
 
-
+export const apiUrl = import.meta.env.VITE_API_URL;
 
 const DashboardSidebar = () => {
 
@@ -40,7 +40,7 @@ const DashboardSidebar = () => {
     const signOutHandle = async () => {
 
         try {
-            const signOutUser = await axios.post(`/api/user/signoutuser`);
+            const signOutUser = await axios.post(apiUrl+`/api/user/signoutuser`);
 
             if (signOutUser.data.success === true) {
                 dispatch(signOutSuccess());

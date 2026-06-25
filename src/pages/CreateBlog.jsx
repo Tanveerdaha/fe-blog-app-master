@@ -8,6 +8,8 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
+export const apiUrl = import.meta.env.VITE_API_URL;
+
 const CreateBlog = () => {
 
     const { user } = useSelector((state) => state.userSliceApp);
@@ -88,7 +90,7 @@ const CreateBlog = () => {
                 blogForm.append('blogImgFile', blogImage);
             }
 
-            const addBlog = await axios.post(
+            const addBlog = await axios.post(apiUrl+
                 '/api/blog/post-blog',
                 blogForm,
                 {

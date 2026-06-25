@@ -8,10 +8,7 @@ import { useNavigate, NavLink } from 'react-router-dom';
 import Spinner from '../assests/spinner/Spinner';
 import OAuth from '../components/OAuth';
 
-
-
-
-
+export const apiUrl = import.meta.env.VITE_API_URL;
 
 const Register = () => {
 
@@ -80,7 +77,7 @@ const Register = () => {
 
       try {
         setLoading(true);
-        const registerUser = await axios.post(`/api/user/register`, formData);
+        const registerUser = await axios.post(apiUrl+`/api/user/register`, formData);
         setLoading(false);
         toast.success(registerUser.data.message);
         setTimeout(() => {

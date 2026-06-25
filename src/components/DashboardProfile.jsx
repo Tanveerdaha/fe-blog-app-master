@@ -15,6 +15,8 @@ import {
 import Modal from './Modal.jsx';
 import { NavLink } from 'react-router-dom';
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const DashboardProfile = () => {
 
     const { user } = useSelector((state) => state.userSliceApp);
@@ -71,7 +73,7 @@ const DashboardProfile = () => {
                 form.append('password', formData.password);
             }
 
-            const updateUser = await axios.put(
+            const updateUser = await axios.put(apiUrl+
                 `/api/user/updateuser/${user._id}`,
                 form,
                 {
@@ -108,7 +110,7 @@ const DashboardProfile = () => {
 
     const signOutHandle = async () => {
         try {
-            const signOutUser = await axios.post('/api/user/signoutuser');
+            const signOutUser = await axios.post(apiUrl+'/api/user/signoutuser');
 
             if (signOutUser.data.success === true) {
                 dispatch(signOutSuccess());
@@ -125,7 +127,7 @@ const DashboardProfile = () => {
     (
         user?.profilePicture?.startsWith('http')
             ? user.profilePicture
-            : `http://localhost:5000${user.profilePicture}`
+            : `${apiUrl}${user.profilePicture}`
     );
 
 console.log("Final Image URL:", profileImage);

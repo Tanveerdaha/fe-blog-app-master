@@ -10,6 +10,8 @@ import GithubCard from '../components/GithubCard';
 import CommentCard from '../components/CommentCard';
 import RecentBlog from '../components/RecentBlog';
 
+export const apiUrl = import.meta.env.VITE_API_URL;
+
 const ShowBlog = () => {
 
     const { theme } = useSelector((state) => state.themeSliceApp);
@@ -27,7 +29,7 @@ const ShowBlog = () => {
         const fetchBlogSlug = async () => {
             try {
                 setLoader(true);
-                const fetchSlug = await axios.get(`/api/blog/get-all-blogs?slug=${blogSlug}`);
+                const fetchSlug = await axios.get(apiUrl+`/api/blog/get-all-blogs?slug=${blogSlug}`);
                 const response = fetchSlug;
                 setLoader(false)
 
@@ -53,7 +55,7 @@ const ShowBlog = () => {
         const getLimitBlogs = async () => {
 
             try {
-                const getBlogs = await axios.get(`/api/blog/get-all-blogs?limit=3`);
+                const getBlogs = await axios.get(apiUrl+`/api/blog/get-all-blogs?limit=3`);
 
                 if (getBlogs.status === 200) {
                     setLimitBlogs(getBlogs.data.blogs)

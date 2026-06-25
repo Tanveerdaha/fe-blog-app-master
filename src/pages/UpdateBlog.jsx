@@ -12,6 +12,8 @@ import {
     updateBlogSuccess
 } from '../features/blogSlice';
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const UpdateBlog = () => {
 
     const navigate = useNavigate();
@@ -54,7 +56,7 @@ const UpdateBlog = () => {
     const fetchBlog = async () => {
         try {
 
-            const getBlog = await axios.get(
+            const getBlog = await axios.get(apiUrl+
                 `/api/blog/get-all-blogs?blogId=${blogId}`
             );
 
@@ -109,7 +111,7 @@ const UpdateBlog = () => {
                 blogForm.append('blogImgFile', blogImage);
             }
 
-            const updateBlog = await axios.put(
+            const updateBlog = await axios.put(apiUrl+
                 `/api/blog/update-blog/${blogId}/${user._id}`,
                 blogForm,
                 {
@@ -149,7 +151,7 @@ const UpdateBlog = () => {
         (
             formData?.blogImgFile?.startsWith('http')
                 ? formData.blogImgFile
-                : `http://localhost:5000${formData?.blogImgFile || ''}`
+                : `${apiUrl}${formData?.blogImgFile || ''}`
         );
 
     return (
