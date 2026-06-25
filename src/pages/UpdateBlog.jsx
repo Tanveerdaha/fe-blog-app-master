@@ -11,6 +11,7 @@ import {
     updateBlogFailure,
     updateBlogSuccess
 } from '../features/blogSlice';
+import getImageUrl from '../utils/getImageUrl';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -146,13 +147,7 @@ const UpdateBlog = () => {
         }
     };
 
-    const displayImage =
-        imagePreview ||
-        (
-            formData?.blogImgFile?.startsWith('http')
-                ? formData.blogImgFile
-                : `${apiUrl}${formData?.blogImgFile || ''}`
-        );
+    const displayImage = imagePreview || getImageUrl(formData?.blogImgFile);
 
     return (
         <>

@@ -7,7 +7,14 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Spinner from '../assests/spinner/Spinner';
 
-export const apiUrl = import.meta.env.VITE_API_URL;
+const rawApiUrl = import.meta.env.VITE_API_URL || '';
+export const apiUrl = rawApiUrl.replace(/\/$/, '');
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return '';
+  if (imagePath.startsWith('http')) return imagePath;
+  if (imagePath.startsWith('/')) return `${apiUrl}${imagePath}`;
+  return `${apiUrl}/${imagePath}`;
+};
 
 const Home = () => {
   // const { blogs } = useSelector((state) => state.blogSliceApp.blogs);
@@ -26,7 +33,7 @@ const Home = () => {
     const getAllBlogs = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(apiUrl+`/api/blog/get-all-blogs?limit=9`);
+        const response = await axios.get(`${apiUrl}/api/blog/get-all-blogs?limit=9`);
 
         if (response.status === 200) {
           setRecentBlogs(response.data.blogs)
@@ -105,7 +112,7 @@ const Home = () => {
                   return (
                     <div key={index} className={`shadow-md duration-300 border hover:scale-[99%]  transition-all w-96 rounded-tl-xl rounded-br-xl pb-5 cursor-pointer ${theme === 'dark' ? 'border-gray-700' : 'border-gray-300'}`}>
                       <Link to={`/blog/${value.slug}`}>
-                        <img src={apiUrl+'/'+value.blogImgFile} className='hover:scale-[99%] duration-300  transition-all w-96 h-60 rounded-tl-xl rounded-br-xl' />
+                        <img src={getImageUrl(value.blogImgFile)} className='hover:scale-[99%] duration-300  transition-all w-96 h-60 rounded-tl-xl rounded-br-xl' />
 
                         <div className="px-3">
                           <p className='text-lg md:text-xl'>{value.blogTitle}</p>

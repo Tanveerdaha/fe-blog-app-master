@@ -7,9 +7,7 @@ import { RiEdit2Fill } from "react-icons/ri";
 import { MdDeleteForever } from "react-icons/md";
 import Spinner from '../assests/spinner/Spinner';
 import toast, { Toaster } from 'react-hot-toast';
-
-
-const apiUrl = import.meta.env.VITE_API_URL;
+import getImageUrl from '../utils/getImageUrl';
 
 
 
@@ -86,7 +84,7 @@ const UserComment = ({ comments, likeTheComment, updateComment, deleteComment })
 
             <div className={`flex border-b flex-col gap-1 transition-all px-2  my-4 py-2 ${theme === 'dark' ? ' border-zinc-700' : ' border-zinc-200'}`}>
                 <div className='flex gap-1'>
-                    <img src={user && apiUrl+user.profilePicture} className='w-6 h-6 rounded-full' />
+                    <img src={getImageUrl(user && user.profilePicture)} className='w-6 h-6 rounded-full' />
                     <div className="flex gap-4 items-center">
                         <span className='text-sm truncate'>@{user && user.username}</span>
                         <span className={` text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{moment(comments && comments.createdAt).fromNow()}</span>

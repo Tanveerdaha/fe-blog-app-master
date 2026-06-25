@@ -9,6 +9,7 @@ import { TiTick } from "react-icons/ti";
 import { ImWarning } from "react-icons/im";
 import { IoClose } from "react-icons/io5";
 import toast, { Toaster } from "react-hot-toast";
+import getImageUrl from '../utils/getImageUrl';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -195,7 +196,7 @@ const AllUsers = () => {
                                                 <Table.Cell className="  flex justify-center ">
                                                     <NavLink className="text-center" to={`/blog`}>
                                                         <img
-                                                            src={apiUrl+user.profilePicture}
+                                                            src={getImageUrl(user.profilePicture)}
                                                             alt="couldn't load image"
                                                             className="w-10 text-center rounded-full h-10 md:rounded-full "
                                                         />

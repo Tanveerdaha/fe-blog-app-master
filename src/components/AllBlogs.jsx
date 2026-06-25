@@ -7,6 +7,7 @@ import toast, { Toaster } from "react-hot-toast";
 import BlogPopupModal from "./BlogPopupModal";
 import BlogLoader from "../assests/blogSpinner/BlogLoader";
 import { PiSmileySad } from "react-icons/pi";
+import getImageUrl from '../utils/getImageUrl';
 
 export const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -174,7 +175,7 @@ const AllBlogs = () => {
                                                 to={`/blog/${data.slug}`}
                                             >
                                                 <img
-                                                    src={apiUrl+data.blogImgFile}
+                                                    src={getImageUrl(data.blogImgFile)}
                                                     alt="blogImage"
                                                     className="w-10 text-center rounded-full h-10 md:w-20 md:rounded-md"
                                                 />

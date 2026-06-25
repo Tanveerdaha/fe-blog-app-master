@@ -9,6 +9,7 @@ import { BiCategoryAlt } from "react-icons/bi";
 import GithubCard from '../components/GithubCard';
 import CommentCard from '../components/CommentCard';
 import RecentBlog from '../components/RecentBlog';
+import getImageUrl from '../utils/getImageUrl';
 
 export const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -90,7 +91,7 @@ const ShowBlog = () => {
                                 </div>
 
                                 <div className=" flex  justify-center text-center my-10">
-                                    <img src={slug && apiUrl+'/'+slug.blogImgFile} className='rounded-sm object-cover' alt="blog image" />
+                                    <img src={getImageUrl(slug && slug.blogImgFile)} className='rounded-sm object-cover' alt="blog image" />
                                 </div>
 
                                 <div className="flex justify-center">

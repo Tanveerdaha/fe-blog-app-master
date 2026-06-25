@@ -15,9 +15,9 @@ import { PiSignOutDuotone } from "react-icons/pi";
 import { MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
 import { motion } from 'framer-motion';
 import Search from './Search';
+import getImageUrl from '../utils/getImageUrl';
 
 
-const apiUrl = import.meta.env.VITE_API_URL;
 
 
 const Header = () => {
@@ -167,7 +167,7 @@ const Header = () => {
                     {
                         user ?
                             <div className=" cursor-pointer relative" onClick={() => setDropDown(!dropDown)}>
-                                <img src={user && apiUrl+user.profilePicture} className='md:w-11 md:h-11 rounded-full' />
+                                <img src={getImageUrl(user && user.profilePicture)} className='md:w-11 md:h-11 rounded-full' />
 
                                 {/* Dropdown Menu  */}
 
@@ -243,7 +243,7 @@ const Header = () => {
                     {
                         user &&
                         <div className=" cursor-pointer relative" onClick={() => setDropDown(!dropDown)}>
-                            <img src={user && user.profilePicture} className='w-9 h-9 rounded-full' />
+                            <img src={getImageUrl(user && user.profilePicture)} className='w-9 h-9 rounded-full' />
 
                             {/* Dropdown Menu  */}
 

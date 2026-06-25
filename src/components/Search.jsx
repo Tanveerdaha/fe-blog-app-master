@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import blogLoader from '../assests/blogSpinner/BlogLoader';
 import NodataImg from '../assests/No data.png';
+import getImageUrl from '../utils/getImageUrl';
 
 export const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -164,7 +165,7 @@ const Search = () => {
                                                 className={`shadow-md border hover:scale-[99%] duration-300 transition-all w-96 rounded-tl-xl rounded-br-xl pb-5 cursor-pointer ${theme === 'dark' ? 'border-gray-700' : 'border-gray-300'}`}>
 
                                                 <Link to={`/blog/${value?.slug}`}>
-                                                    <img src={value?.blogImgFile} className='duration-300 hover:scale-[99%] transition-all w-96 h-60 rounded-tl-xl rounded-br-xl' />
+                                                    <img src={getImageUrl(value?.blogImgFile)} className='duration-300 hover:scale-[99%] transition-all w-96 h-60 rounded-tl-xl rounded-br-xl' />
 
                                                     <div className="px-3">
                                                         <p className='text-lg md:text-xl'>{value?.blogTitle}</p>

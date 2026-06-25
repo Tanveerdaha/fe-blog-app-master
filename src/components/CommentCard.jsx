@@ -6,6 +6,7 @@ import feedbackImg from '../assests/typingImg.png'
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
 import UserComment from './UserComment';
+import getImageUrl from '../utils/getImageUrl';
 import { IoClose } from "react-icons/io5";
 import { ImWarning } from "react-icons/im";
 import Spinner from '../assests/spinner/Spinner';
@@ -208,7 +209,7 @@ const CommentCard = ({ blogId }) => {
 
                     <div className="">
 
-                        <p className='flex items-center lg:text-base sm:text-xs md:text-sm gap-3 justify-center '>Sign in as :<Link to={'/dashboard?tab=profile'} className='flex font-semibold text-sm text-teal-500 hover:underline cursor-pointer items-center'> <img src={apiUrl+user.profilePicture} className='w-7 h-7 rounded-full' /> @{user.username}</Link></p>
+                        <p className='flex items-center lg:text-base sm:text-xs md:text-sm gap-3 justify-center '>Sign in as :<Link to={'/dashboard?tab=profile'} className='flex font-semibold text-sm text-teal-500 hover:underline cursor-pointer items-center'> <img src={getImageUrl(user.profilePicture)} className='w-7 h-7 rounded-full' /> @{user.username}</Link></p>
                     </div>
 
                     :

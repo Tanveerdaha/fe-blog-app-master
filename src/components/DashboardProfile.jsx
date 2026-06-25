@@ -13,6 +13,7 @@ import {
     signOutUserFailure
 } from '../features/userSlice';
 import Modal from './Modal.jsx';
+import getImageUrl from '../utils/getImageUrl';
 import { NavLink } from 'react-router-dom';
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -122,15 +123,7 @@ const DashboardProfile = () => {
         }
     };
 
-    const profileImage =
-    tempFileUrl ||
-    (
-        user?.profilePicture?.startsWith('http')
-            ? user.profilePicture
-            : `${apiUrl}${user.profilePicture}`
-    );
-
-console.log("Final Image URL:", profileImage);
+    const profileImage = tempFileUrl || getImageUrl(user?.profilePicture);
 
     return (
         <>

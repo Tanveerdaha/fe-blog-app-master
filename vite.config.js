@@ -9,6 +9,11 @@ export default defineConfig({
         target: 'https://be-blog-app-master-production.up.railway.app',
         secure: false
       }
+      ,
+      '/uploads': {
+        target: 'https://be-blog-app-master-production.up.railway.app',
+        secure: false
+      }
     }
   },
   plugins: [react()]
