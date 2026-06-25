@@ -19,7 +19,7 @@ const RecentBlog = ({ blogs }) => {
             <div className={`border w-80 rounded-md  flex justify-center items-center      ${theme === 'dark' ? 'border-gray-700' : 'border-gray-300'}`}>
 
                 <Link to={`/blog/${recentBlogs.slug}`}>
-                    <img src={recentBlogs && apiUrl + recentBlogs.blogImgFile} className='hover:scale-[99%] w-80 h-48 object-cover  rounded-sm transition-all' />
+                    <img src={recentBlogs && apiUrl +'/'+ recentBlogs.blogImgFile} className='hover:scale-[99%] w-80 h-48 object-cover  rounded-sm transition-all' />
 
                     <div className="flex flex-col gap-1 px-2 py-2">
                         <p className='md:text-xl '>{recentBlogs && recentBlogs.blogTitle}</p>
