@@ -174,7 +174,7 @@ const AllBlogs = () => {
                                                 to={`/blog/${data.slug}`}
                                             >
                                                 <img
-                                                    src={data.blogImgFile}
+                                                    src={apiUrl+data.blogImgFile}
                                                     alt="blogImage"
                                                     className="w-10 text-center rounded-full h-10 md:w-20 md:rounded-md"
                                                 />
