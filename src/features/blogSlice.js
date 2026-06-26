@@ -33,7 +33,8 @@ const blogSlice = createSlice({
             state.isLoading = false
         },
         updateBlogFailure: (state, action) => {
-            state.error = action.payload
+            state.isLoading = false;
+            state.error = action.payload;
         }
     }
 });

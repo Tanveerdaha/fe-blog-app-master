@@ -59,7 +59,7 @@ const AllBlogs = () => {
     const fetchBlogs = async (page = 2) => {
         try {
             const response = await apiClient.get(
-                `/api/blog/get-all-blogs?${user._id}&page=${page}`
+                `/api/blog/get-all-blogs?userId=${user._id}&page=${page}`
             );
             if (response.status === 200) {
                 setUserBlogs([...response.data.blogs, ...userBlogs]);

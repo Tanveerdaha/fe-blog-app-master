@@ -11,39 +11,37 @@ const Modal = ({ setShowModal, user }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-
     const closeModal = () => {
-        setShowModal(false)
-    }
+        setShowModal(false);
+    };
 
     const cancelHandle = () => {
-        setShowModal(false)
-    }
+        setShowModal(false);
+    };
 
     const deleteUser = async () => {
-
         try {
             dispatch(deleteUserStart());
             const deleteUserInfo = await apiClient.delete(`/api/user/deleteuser/${user._id}`, {
-
                 data: {
                     user: user
                 },
                 headers: {
                     Authorization: user.token
                 }
-            })
-            dispatch(deleteUserSuccess());
+            });
 
+            if (deleteUserInfo.status === 200) {
+                dispatch(deleteUserSuccess(null));
+                setShowModal(false);
+                navigate('/login');
+                toast.success('Account deleted successfully');
+            }
         } catch (error) {
             toast.error('An error occurred while deleting user!');
             dispatch(deleteUserFailure(error));
         }
-    }
-
-
-
-
+    };
 
     return (
         <>
@@ -68,13 +66,10 @@ const Modal = ({ setShowModal, user }) => {
                         <button className=" border font-semibold text-white active:scale-95 transition-all bg-transparent rounded-sm py-2 px-3" onClick={cancelHandle}>No, cancel</button>
                     </div>
 
-
                 </div>
-
-
 
             </div>
         </>
-    )
-}
+    );
+};
 export default Modal;

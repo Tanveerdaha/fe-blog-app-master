@@ -5,9 +5,11 @@ import BlogLoader from '../assests/blogSpinner/BlogLoader';
 import { MdUpdate } from "react-icons/md";
 import { MdDateRange } from "react-icons/md";
 import { BiCategoryAlt } from "react-icons/bi";
+import AuthorLink from '../components/AuthorLink';
 import GithubCard from '../components/GithubCard';
 import CommentCard from '../components/CommentCard';
 import RecentBlog from '../components/RecentBlog';
+import DOMPurify from 'dompurify';
 import getImageUrl from '../utils/getImageUrl';
 import apiClient from '../utils/apiClient';
 
@@ -62,6 +64,14 @@ const ShowBlog = () => {
         getLimitBlogs();
     }, []);
 
+    const getReadTime = (html) => {
+        const text = html?.replace(/<[^>]+>/g, ' ') || '';
+        const words = text.trim().split(/\s+/).filter(Boolean).length;
+        return Math.max(1, Math.ceil(words / 200));
+    };
+
+    const sanitizedBody = slug ? DOMPurify.sanitize(slug.blogBody) : '';
+
     return (
         <>
             <div className="min-h-screen">
@@ -83,7 +93,15 @@ const ShowBlog = () => {
 
                                 <h1 className='text-2xl md:text-4xl font-semibold text-center hover:-translate-y-1 hover:cursor-not-allowed transition-all peer-hover:'>{slug.blogTitle}</h1>
 
-                                <div className='flex justify-center w-full my-10'>
+                                <div className='flex justify-center w-full my-6'>
+                                    <AuthorLink
+                                        username={slug.authorUsername}
+                                        profilePicture={slug.authorProfilePicture}
+                                        className="text-base"
+                                    />
+                                </div>
+
+                                <div className='flex justify-center w-full my-6'>
                                     <p className={`${theme === 'dark' ? 'border-gray-600' : 'border-red-600'} cursor-not-allowed hover:scale-95 transition-all rounded-full py-1 flex text-orange-400 px-5 font-semibold text-sm md:text-xl items-center justify-center gap-3`}> <span><BiCategoryAlt size={20} /></span>{slug.blogCategory}</p>
                                 </div>
 
@@ -100,7 +118,7 @@ const ShowBlog = () => {
                                             </div>
                                             <div className=" font-semibold flex items-center gap-1 md:gap-2">
                                                 <span><MdUpdate size={20} color='orange' /></span>
-                                                <span className='font-semibold text-xs md:text-lg'>{(slug.blogBody.length / 1000).toFixed(0)}min read</span>
+                                                <span className='font-semibold text-xs md:text-lg'>{getReadTime(slug.blogBody)} min read</span>
                                             </div>
                                         </div>
                                     </div>
@@ -108,7 +126,7 @@ const ShowBlog = () => {
 
                                 <div className="flex w-full justify-center items-center flex-col my-10">
                                     <div
-                                        dangerouslySetInnerHTML={{ __html: slug.blogBody }}
+                                        dangerouslySetInnerHTML={{ __html: sanitizedBody }}
                                         className={`blog-content py-10  w-full max-w-[370px] text-justify md:max-w-3xl overflow-x-auto px-3 rounded-md `}>
                                     </div>
 
@@ -117,7 +135,7 @@ const ShowBlog = () => {
                                     </div>
 
                                     <div className="">
-                                        <CommentCard blogId={slug._id} />
+                                        <CommentCard blogId={slug._id} blogOwnerId={slug.userId} />
                                     </div>
 
                                     <h1 className='text-2xl text-center'>Recent blogs</h1>

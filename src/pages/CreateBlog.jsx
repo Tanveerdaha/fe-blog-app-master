@@ -1,4 +1,4 @@
-
+import { BLOG_CATEGORIES } from '../utils/blogCategories';
 import { useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -165,11 +165,9 @@ const CreateBlog = () => {
                             onChange={inputChangeHandle}
                         >
                             <option value="">Select Category</option>
-                            <option>Java</option>
-                            <option>Javascript</option>
-                            <option>React Js</option>
-                            <option>Git</option>
-                            <option>Mongo DB</option>
+                            {BLOG_CATEGORIES.map((category) => (
+                                <option key={category} value={category}>{category}</option>
+                            ))}
                         </select>
 
                     </div>

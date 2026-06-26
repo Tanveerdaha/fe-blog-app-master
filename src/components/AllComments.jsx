@@ -188,7 +188,7 @@ const AllComments = () => {
                                                 </Table.Cell>
 
                                                 <Table.Cell className="flex px-2 w-52 md:px-0 justify-center">
-                                                    <NavLink className="" to={`/blog`}>
+                                                    <NavLink className="" to={comments.blogSlug ? `/blog/${comments.blogSlug}` : '/'}>
                                                         <span className="">{comments.comment}</span>
                                                     </NavLink>
                                                 </Table.Cell>

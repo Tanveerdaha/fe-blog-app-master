@@ -57,7 +57,7 @@ const Register = () => {
       toast.error('Username can not be less than 4 char!');
       return false;
     } else if (formData.username.length > 30) {
-      toast.error('Username can not exceed 15 char!');
+      toast.error('Username can not exceed 30 char!');
       return false;
     } else if (!formData.email) {
       toast.error('Email can not be empty!');

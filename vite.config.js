@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://be-blog-app-master-production.up.railway.app',
+        target: 'http://localhost:5000',
         secure: false
       }
       ,
       '/uploads': {
-        target: 'https://be-blog-app-master-production.up.railway.app',
+        target: 'http://localhost:5000',
         secure: false
       }
     }

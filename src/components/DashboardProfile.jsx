@@ -216,16 +216,24 @@ const DashboardProfile = () => {
 
                         </div>
 
-                        <div>
+                        <div className="mt-6">
 
-                            <button
-                                type="submit"
-                                className="py-2 md:w-96 w-80 border border-violet-400 font-semibold my-4 rounded-md active:scale-95 transition-all hover:bg-violet-500"
-                            >
-                                Update
-                            </button>
+                            <div className="flex gap-3 w-80 md:w-96">
+                                <button
+                                    type="submit"
+                                    className="flex-1 py-2 font-semibold rounded-md active:scale-95 transition-all border border-violet-400 hover:bg-violet-500 hover:text-white"
+                                >
+                                    Update
+                                </button>
+                                <NavLink
+                                    to="/create-blog"
+                                    className="flex-1 py-2 font-semibold rounded-md active:scale-95 transition-all text-center border border-green-500 hover:bg-green-600 hover:text-white"
+                                >
+                                    Create Blog
+                                </NavLink>
+                            </div>
 
-                            <div className="text-red-500 text-sm w-full flex justify-between">
+                            <div className="text-red-500 text-sm w-80 md:w-96 flex justify-between mt-4">
                                 <span
                                     className="cursor-pointer font-semibold"
                                     onClick={deleteHandle}
@@ -240,24 +248,6 @@ const DashboardProfile = () => {
                                     Sign out
                                 </span>
                             </div>
-
-                            {
-                                user &&
-                                user.isAdmin &&
-                                (
-                                    <button
-                                        type="button"
-                                        className="md:w-96 w-80 py-2 my-4 rounded-md active:scale-95 transition-all border border-green-500 hover:bg-green-600 hover:text-white"
-                                    >
-                                        <NavLink
-                                            to="/create-blog"
-                                            className="font-semibold"
-                                        >
-                                            Create Blog
-                                        </NavLink>
-                                    </button>
-                                )
-                            }
 
                         </div>
 

@@ -13,7 +13,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 import Dashboard from './pages/Dashboard';
 import ThemeProvider from './components/ThemeProvider';
 import PrivateRoute from './components/PrivateRoute';
-import AdminPrivateRoute from './components/AdminPrivateRoute';
 import CreateBlog from './pages/CreateBlog';
 import UpdateBlog from './pages/UpdateBlog';
 import ShowBlog from './pages/ShowBlog';
@@ -23,9 +22,7 @@ import ScrollToTop from './components/ScrollToTop';
 import Search from './components/Search';
 import ErrorBoundary from './components/ErrorBoundary';
 import Spinner from './assests/spinner/Spinner';
-
-
-
+import PublicProfile from './pages/PublicProfile';
 
 const App = () => {
 
@@ -46,13 +43,11 @@ const App = () => {
                                     <Route path='/register' element={<Register />} />
                                     <Route path='/login' element={<Login />} />
                                     <Route path='/blog/:blogSlug' element={<ShowBlog />} />
+                                    <Route path='/user/:username' element={<PublicProfile />} />
                                     <Route path='/search' element={<Search />} />
                                     <Route path='/forget-password' element={<ForgetPassword />} />
                                     <Route element={<PrivateRoute />}>
                                         <Route path='/dashboard' element={<Dashboard />} />
-                                    </Route>
-
-                                    <Route element={<AdminPrivateRoute />}>
                                         <Route path='/create-blog' element={<CreateBlog />} />
                                         <Route path='/update-blog/:blogId' element={<UpdateBlog />} />
                                     </Route>
@@ -66,6 +61,6 @@ const App = () => {
                 </PersistGate>
             </Provider>
         </>
-    )
-}
+    );
+};
 export default App;

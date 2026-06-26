@@ -10,8 +10,9 @@ import getImageUrl from '../utils/getImageUrl';
 import { IoClose } from "react-icons/io5";
 import { ImWarning } from "react-icons/im";
 import Spinner from '../assests/spinner/Spinner';
+import { buildCommentTree } from '../utils/commentTree';
 
-const CommentCard = ({ blogId }) => {
+const CommentCard = ({ blogId, blogOwnerId }) => {
 
     const { user } = useSelector((state) => state.userSliceApp);
     const { theme } = useSelector((state) => state.themeSliceApp);
@@ -19,96 +20,70 @@ const CommentCard = ({ blogId }) => {
 
     const [commentData, setCommentData] = useState('');
     const [comments, setComments] = useState([]);
+    const [commentTree, setCommentTree] = useState([]);
     const [modal, setModal] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [propsCommentId, setPropsCommentId] = useState()
+    const [propsCommentId, setPropsCommentId] = useState(null);
 
-
-
-
-
-
-    const commentSubmitHandle = (e) => {
-        e.preventDefault()
-        formValidate(commentData)
-
-    }
-
-    const textAreaChange = (e) => {
-        const { value } = e.target;
-        setCommentData(value)
-    }
-
-    const formValidate = (commentText) => {
-        if (!commentText) {
-            toast.error('Comment is empty!')
-            return false;
-        } else if (commentText.length < 4) {
-            toast.error('Atleast four characters required!')
-            return false;
-        } else {
-            postUserComment();
-        }
-    }
-
-    // POST Api : Add comment - 
-    const postUserComment = async () => {
-
+    const loadComments = async () => {
         try {
+            const comment = await apiClient.get(`/api/comment/get-comment/${blogId}`);
 
-            if (!user) {
-                toast.error('You must login to post comment!');
-                return;
+            if (comment.status === 200) {
+                const list = comment.data || [];
+                setComments(list);
+                setCommentTree(buildCommentTree(list));
             }
-            setLoading(true);
-            const addComment = await apiClient.post('/api/comment/add-comment/',
-                {
-                    comment: commentData,
-                    blogId: blogId,
-                    userId: user._id
-                },
-                {
-                    headers: {
-                        Authorization: user.token
-                    }
-                })
-            if (addComment.status === 200) {
-
-                toast.success('Comment has been added');
-                setCommentData('')
-
-                setComments([...comments, addComment.data.comment])
-            }
-            setLoading(false);
         } catch (error) {
-            setLoading(false);
-            toast.error('An error occured while adding new comments!');
-            console.log(error);
+            setComments([]);
+            setCommentTree([]);
         }
     };
 
-
-    //Get user comment : 
     useEffect(() => {
-        const getComment = async () => {
-            try {
-                const comment = await apiClient.get(`/api/comment/get-comment/${blogId}`);
-
-                if (comment.status === 200) {
-                    setComments(comment.data)
-                }
-            } catch (error) {
-                toast.error('Failed to load comments.');
-                console.log(error.message);
-            }
-        }
-        getComment();
-
+        loadComments();
     }, [blogId]);
 
+    const postUserComment = async (text, parentId = null) => {
+        if (!user) {
+            toast.error('You must login to post comment!');
+            return;
+        }
 
+        try {
+            setLoading(true);
+            const addComment = await apiClient.post('/api/comment/add-comment/',
+                {
+                    comment: text,
+                    blogId,
+                    userId: user._id,
+                    parentId
+                },
+                {
+                    headers: { Authorization: user.token }
+                });
 
-    // PUT API - For liking the comment 
+            if (addComment.status === 200) {
+                toast.success(parentId ? 'Reply added' : 'Comment has been added');
+                setCommentData('');
+                await loadComments();
+            }
+        } catch (error) {
+            toast.error('An error occurred while adding comment!');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const commentSubmitHandle = (e) => {
+        e.preventDefault();
+        if (!commentData || commentData.length < 4) {
+            toast.error('At least four characters required!');
+            return;
+        }
+        postUserComment(commentData);
+    };
+
     const likeTheComment = async (commentId) => {
         try {
             if (!user) {
@@ -117,224 +92,163 @@ const CommentCard = ({ blogId }) => {
             }
 
             const doLike = await apiClient.put(`/api/comment/like-the-comment/${commentId}`, { user: user._id }, {
-                headers: {
-                    Authorization: user.token
-                },
-            })
+                headers: { Authorization: user.token },
+            });
 
             if (doLike.status === 200) {
-                setComments(comments.map(comments => {
-
-                    if (comments._id === commentId) {
-
-                        return {
-                            ...comments,
-                            likes: doLike.data.likes,
-                            numberOfLikes: doLike.data.numberOfLikes
-                        }
-                    }
-                    return comments;
-                }))
+                setComments((prev) => prev.map((item) => (
+                    item._id === commentId
+                        ? { ...item, likes: doLike.data.likes, numberOfLikes: doLike.data.numberOfLikes }
+                        : item
+                )));
+                setCommentTree(buildCommentTree(
+                    comments.map((item) => (
+                        item._id === commentId
+                            ? { ...item, likes: doLike.data.likes, numberOfLikes: doLike.data.numberOfLikes }
+                            : item
+                    ))
+                ));
             }
         } catch (error) {
             toast.error('Failed to like comment.');
-            console.log(error.message);
         }
-    }
-
-
-
-    // Updating comment functionality :
-
-    const updateComment = async (commentId, updatedCommentInfo) => {
-
-        setComments(comments.map(commentLists => {
-            if (commentLists._id === commentId) {
-                return {
-                    ...commentLists, comment: updatedCommentInfo
-                }
-            }
-            return commentLists;
-        }))
     };
 
-    const cancelHandle = () => {
-        setModal(false)
-    }
-
-
+    const updateComment = (commentId, updatedCommentInfo) => {
+        const updated = comments.map((item) => (
+            item._id === commentId ? { ...item, comment: updatedCommentInfo } : item
+        ));
+        setComments(updated);
+        setCommentTree(buildCommentTree(updated));
+    };
 
     const deleteComment = (commentId) => {
-        setPropsCommentId(commentId)
-        setModal(true)
-    }
+        setPropsCommentId(commentId);
+        setModal(true);
+    };
 
-
-    // Comment to delete if the delete if the confirm button is cliekd 
-    const okToDeleteComment = async (propsCommentId) => {
+    const okToDeleteComment = async () => {
         try {
             const deleteResponse = await apiClient.delete(`/api/comment/delete-comment/${propsCommentId}`, {
-                headers: {
-                    Authorization: user.token
-                },
-                data: {
-                    user
-                }
-            })
-            if (deleteResponse.status === 200) {
-                setModal(false)
-                toast.success(deleteResponse.data.message)
-                setComments(comments.filter((commentInfo) => commentInfo._id !== propsCommentId))
+                headers: { Authorization: user.token },
+                data: { user }
+            });
 
+            if (deleteResponse.status === 200) {
+                setModal(false);
+                toast.success(deleteResponse.data.message);
+                await loadComments();
             }
         } catch (error) {
-            toast.error(error.message);
-            console.log(error.message);
+            toast.error(error.response?.data?.message || 'Failed to delete comment');
         }
-    }
+    };
 
-
-
-
-
-
-
+    const handleReply = async (parentId, replyText) => {
+        if (!replyText || replyText.length < 4) {
+            toast.error('Reply must be at least 4 characters');
+            return;
+        }
+        await postUserComment(replyText, parentId);
+    };
 
     return (
+        <div className='md:mt-10 mt-5 w-full'>
+            {user ? (
+                <div className="">
+                    <p className='flex items-center lg:text-base sm:text-xs md:text-sm gap-3 justify-center '>
+                        Sign in as:
+                        <Link to={'/dashboard?tab=profile'} className='flex font-semibold text-sm text-teal-500 hover:underline cursor-pointer items-center'>
+                            <img src={getImageUrl(user.profilePicture)} className='w-7 h-7 rounded-full' alt="" /> @{user.username}
+                        </Link>
+                    </p>
+                </div>
+            ) : (
+                <div className="">
+                    <span className='flex gap-2 text-xs md:text-sm text-teal-500 font-semibold'>
+                        Login to access more features and engage with users of this blog.
+                        <Link className='text-blue-400 hover:underline' to={'/login'}>Login</Link>
+                    </span>
+                </div>
+            )}
 
-        <div className='md:mt-10 mt-5'>
-
-            {
-                user ?
-
-                    <div className="">
-
-                        <p className='flex items-center lg:text-base sm:text-xs md:text-sm gap-3 justify-center '>Sign in as :<Link to={'/dashboard?tab=profile'} className='flex font-semibold text-sm text-teal-500 hover:underline cursor-pointer items-center'> <img src={getImageUrl(user.profilePicture)} className='w-7 h-7 rounded-full' /> @{user.username}</Link></p>
-                    </div>
-
-                    :
-                    <div className="">
-                        <span className='flex gap-2 text-xs md:text-sm text-teal-500 font-semibold'>Login to access more features and engage with users of this blog.
-                            <Link className='text-blue-400 hover:underline' to={'/login'}>Login</Link>
-                        </span>
-                    </div>
-            }
-
-            {
-                user &&
-                <div className="w-full md:flex-row flex flex-col justify-center md:gap-10 items-center">
-
-                    {/* Left Content  */}
+            {user && (
+                <div className="w-full md:flex-row flex flex-col justify-center md:gap-10 items-center mt-4">
                     <div className="flex justify-center items-center">
                         <img src={feedbackImg} alt="" className='w-72 md:96' />
                     </div>
 
-                    {/* Right Content  */}
-                    <div className={` py-2  px-5 rounded-md ${theme === 'dark' ? 'border border-gray-600 ' : 'border border-gray-300'}`}>
+                    <div className={`py-2 px-5 rounded-md ${theme === 'dark' ? 'border border-gray-600' : 'border border-gray-300'}`}>
                         <div className="flex gap-2 py-2 items-center">
                             <h1 className={`text-sm font-semibold ${commentData.length === 50 && 'text-red-500'}`}>Share your feedback</h1>
-                            <AiOutlineComment size={30} className={`${commentData.length === 50 && 'text-red-500'}`} />
+                            <AiOutlineComment size={30} />
                         </div>
 
-                        <form className={`py-2  flex shadow-md flex-col  w-full px-1 md:px-5  rounded-md ${theme === 'dark' ? 'border border-gray-600 ' : 'border border-gray-300'}}`} onSubmit={commentSubmitHandle}>
-
-                            <textarea value={commentData} onChange={textAreaChange} placeholder='Type here...' name="comment" className={` transition-all outline-none  w-80 rounded-md  py-3 px-2 ${theme === 'dark' ? 'bg-zinc-600 focus:bg-zinc-700' : 'bg-zinc-200 focus:bg-zinc-300'}`} maxLength={50}>
-
-                            </textarea>
-                            <span className={`text-xs md:text-sm  transition-all font-semibold ${commentData.length === 50 ? 'text-red-500 ' : 'text-green-500'}`}>{50 - commentData.length} characters left</span>
-
-
-                            <button disabled={loading} type='submit' className={`active:scale-90 transition-all py-1 my-3 bg-gradient-to-r from-yellow-400 to-green-700 hover:from-pink-500 hover:to-yellow-500 w-full font-semibold ${loading && 'opacity-50 cursor-not-allowed'}`}>
-
-                                {
-                                    loading ? <div className="flex justify-center"><Spinner /> </div> : 'Submit'
-                                }
+                        <form className={`py-2 flex shadow-md flex-col w-full px-1 md:px-5 rounded-md ${theme === 'dark' ? 'border border-gray-600' : 'border border-gray-300'}`} onSubmit={commentSubmitHandle}>
+                            <textarea
+                                value={commentData}
+                                onChange={(e) => setCommentData(e.target.value)}
+                                placeholder='Type here...'
+                                className={`transition-all outline-none w-80 rounded-md py-3 px-2 ${theme === 'dark' ? 'bg-zinc-600 focus:bg-zinc-700' : 'bg-zinc-200 focus:bg-zinc-300'}`}
+                                maxLength={50}
+                            />
+                            <span className={`text-xs font-semibold ${commentData.length === 50 ? 'text-red-500' : 'text-green-500'}`}>
+                                {50 - commentData.length} characters left
+                            </span>
+                            <button disabled={loading} type='submit' className={`active:scale-90 transition-all py-1 my-3 bg-gradient-to-r from-yellow-400 to-green-700 w-full font-semibold ${loading && 'opacity-50 cursor-not-allowed'}`}>
+                                {loading ? <div className="flex justify-center"><Spinner /></div> : 'Submit'}
                             </button>
-
-
-
                         </form>
-
                     </div>
-                </div >
-            }
-
-            {/* user comment card  */}
-
-            <div className="">
-
-                <div className="flex gap-3 items-center my-3">
-                    <p className='text-sm '>Comments</p>
-                    <span className='border flex items-center justify-center px-2  text-sm rounded-md'>{comments && comments.length}</span>
                 </div>
-                <hr className={` rounded-full ${theme === 'dark' ? 'border-gray-600' : 'border-gray-300'}`} />
+            )}
+
+            <div className="mt-6">
+                <div className="flex gap-3 items-center my-3">
+                    <p className='text-sm'>Comments</p>
+                    <span className='border flex items-center justify-center px-2 text-sm rounded-md'>{comments.length}</span>
+                </div>
+                <hr className={`rounded-full ${theme === 'dark' ? 'border-gray-600' : 'border-gray-300'}`} />
             </div>
 
-            {
-                comments && comments.length === 0 ?
+            {commentTree.length === 0 ? (
+                <p className='text-sm text-teal-500 mt-4'>No comments on this blog yet</p>
+            ) : (
+                commentTree.map((value) => (
+                    <UserComment
+                        key={value._id}
+                        comments={value}
+                        likeTheComment={likeTheComment}
+                        updateComment={updateComment}
+                        deleteComment={deleteComment}
+                        onReply={handleReply}
+                        blogOwnerId={blogOwnerId}
+                        depth={0}
+                    />
+                ))
+            )}
 
-                    <p className='text-sm text-teal-500'>No comment found on this blog</p>
-                    :
-                    comments.map((value, index) => {
-                        return (
-                            <div className="" key={index}>
-                                <UserComment comments={value} likeTheComment={likeTheComment} updateComment={updateComment} deleteComment={deleteComment} />
-                            </div>
-                        )
-                    })
-            }
-
-
-
-
-
-
-            {/* Popup Modal  */}
-            {
-                modal && <div className="fixed inset-0  transition-all backdrop-blur-sm bg-opacity-30 flex justify-center items-center">
-                    <div
-                        className={`flex flex-col gap-7  shadow-md w-80 md:w-96 bg- rounded-md  px-3 justify-center items-center py-5   ${theme === "dark"
-                            ? "bg-zinc-800 text-gray-200"
-                            : "bg-white text-gray-900"
-                            }`}
-                    >
-                        <button className="place-self-end transition-all" onClick={cancelHandle}>
-                            <IoClose size={25} className=' active:animate-ping transition-all' />
+            {modal && (
+                <div className="fixed inset-0 backdrop-blur-sm bg-opacity-30 flex justify-center items-center z-50">
+                    <div className={`flex flex-col gap-7 shadow-md w-80 md:w-96 rounded-md px-3 py-5 ${theme === "dark" ? "bg-zinc-800 text-gray-200" : "bg-white text-gray-900"}`}>
+                        <button className="place-self-end" onClick={() => setModal(false)}>
+                            <IoClose size={25} />
                         </button>
-
-                        <div className="">
-                            <ImWarning size={40} />
-                        </div>
-
-                        <div className="">
-                            <p className="text-base text-center">
-                                Are you sure you want to delete your comment  ?
-                            </p>
-                        </div>
-
-                        <div className="flex gap-4">
-                            <button
-                                className={`text-sm  rounded-md transition-all active:bg-red-800 font-semibold py-2 px-2 active:scale-95  ${theme === "dark" ? "bg-red-700" : "bg-red-400"
-                                    }`}
-                                onClick={() => {
-                                    okToDeleteComment(propsCommentId)
-                                }}
-                            >
-                                Yes,I'm sure
+                        <ImWarning size={40} className="self-center" />
+                        <p className="text-base text-center">Are you sure you want to delete this comment?</p>
+                        <div className="flex gap-4 justify-center">
+                            <button className="bg-red-500 text-white rounded-md py-2 px-4 text-sm font-semibold" onClick={okToDeleteComment}>
+                                Yes, delete
                             </button>
-
-                            <button
-                                className=" border text-sm font-semibold  active:scale-95 transition-all bg-transparent rounded-md py-2 px-3 active:bg-gray-600"
-                                onClick={cancelHandle}
-                            >
-                                No, cancel
+                            <button className="border rounded-md py-2 px-4 text-sm font-semibold" onClick={() => setModal(false)}>
+                                Cancel
                             </button>
                         </div>
                     </div>
                 </div>
-            }
+            )}
         </div>
-    )
-}
+    );
+};
 
 export default CommentCard;

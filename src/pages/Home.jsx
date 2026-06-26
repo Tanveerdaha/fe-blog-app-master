@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Spinner from '../assests/spinner/Spinner';
 import getImageUrl from '../utils/getImageUrl';
+import AuthorLink from '../components/AuthorLink';
 import GithubCard from '../components/GithubCard';
 
 const Home = () => {
@@ -105,7 +106,14 @@ const Home = () => {
 
                         <div className="px-3">
                           <p className='text-lg md:text-xl'>{value.blogTitle}</p>
-                          <span className='text-xs md:text-sm w-20 text-center border px-4 rounded-full'>{value.blogCategory}</span>
+                          <div className="flex items-center justify-between mt-2 gap-2 flex-wrap">
+                            <span className='text-xs md:text-sm border px-4 rounded-full'>{value.blogCategory}</span>
+                            <AuthorLink
+                              username={value.authorUsername}
+                              profilePicture={value.authorProfilePicture}
+                              className="text-xs"
+                            />
+                          </div>
                         </div>
                       </Link>
                     </div>

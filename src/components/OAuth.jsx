@@ -4,16 +4,14 @@ import { app } from '../firebase/firebaseConfig';
 import apiClient from '../utils/apiClient';
 import { loginStart, loginSuccess, loginFailure } from '../features/userSlice'
 import { useDispatch } from 'react-redux';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 const OAuth = () => {
 
-
     const auth = getAuth(app);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
 
     const googleFirebaseAuthBtn = async () => {
 
@@ -23,12 +21,14 @@ const OAuth = () => {
         try {
             const googleSignIn = await signInWithPopup(auth, googleProvider);
             const { user } = googleSignIn;
+            const idToken = await user.getIdToken();
 
             const userData = {
+                idToken,
                 username: user.displayName,
                 email: user.email,
                 profilePicture: user.photoURL
-            }
+            };
 
             dispatch(loginStart());
             const addGoogleUser = await apiClient.post('/api/user/googleuser', userData);
@@ -39,15 +39,11 @@ const OAuth = () => {
 
         } catch (error) {
             dispatch(loginFailure(error));
-            console.log(error);
             const errMsg = error.response?.data?.message || error.message || 'Google authentication failed!';
             toast.error(errMsg);
         }
 
-    }
-
-
-
+    };
 
     return (
         <>
@@ -58,6 +54,6 @@ const OAuth = () => {
                 </button>
             </div>
         </>
-    )
-}
+    );
+};
 export default OAuth;

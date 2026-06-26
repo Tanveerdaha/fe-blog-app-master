@@ -11,6 +11,7 @@ import {
     updateBlogFailure,
     updateBlogSuccess
 } from '../features/blogSlice';
+import { BLOG_CATEGORIES } from '../utils/blogCategories';
 import getImageUrl from '../utils/getImageUrl';
 import BlogLoader from '../assests/blogSpinner/BlogLoader';
 
@@ -69,6 +70,15 @@ const UpdateBlog = () => {
                 const response = getBlog.data.blogs[0];
 
                 if (response) {
+                    const isOwner = response.userId?.toString() === user._id?.toString();
+                    const isAdmin = user?.isAdmin;
+
+                    if (!isOwner && !isAdmin) {
+                        toast.error('You can only edit your own blogs');
+                        navigate('/dashboard?tab=my-blogs');
+                        return;
+                    }
+
                     setFormData(response);
                 } else {
                     setNotFound(true);
@@ -223,12 +233,9 @@ const UpdateBlog = () => {
                             <option value="" disabled>
                                 Select Category
                             </option>
-
-                            <option>Java</option>
-                            <option>Javascript</option>
-                            <option>React Js</option>
-                            <option>Git</option>
-                            <option>Mongo DB</option>
+                            {BLOG_CATEGORIES.map((category) => (
+                                <option key={category} value={category}>{category}</option>
+                            ))}
                         </select>
 
                     </div>

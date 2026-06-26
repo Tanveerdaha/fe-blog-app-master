@@ -32,6 +32,13 @@ const Header = () => {
     const { theme } = useSelector((state) => state.themeSliceApp);
     const navigate = useNavigate();
     const [searchBlog, setSearchBlog] = useState('');
+    const dropdownLinkClass = theme === 'dark'
+        ? 'transition-all py-2 px-3 rounded-md text-sm font-semibold hover:bg-gray-600 text-white'
+        : 'transition-all py-2 px-3 rounded-md text-sm font-semibold hover:bg-gray-300 text-black';
+
+    const signOutButtonClass = theme === 'dark'
+        ? 'transition-all px-5 rounded-md py-2 text-sm font-semibold hover:bg-gray-600 text-white'
+        : 'transition-all px-5 rounded-md py-2 text-sm font-semibold hover:bg-gray-300 text-black';
 
 
 
@@ -59,6 +66,7 @@ const Header = () => {
 
             if (signOutUser.data.success === true) {
                 dispatch(signOutSuccess());
+                navigate('/login');
             }
 
         } catch (error) {
@@ -71,12 +79,19 @@ const Header = () => {
 
     const submitHandle = (e) => {
         e.preventDefault();
-        const getURL = new URLSearchParams(location.search);
-        getURL.set('searchBlog', searchBlog);
-        const stringConversion = getURL.toString();
-        navigate(`/search?${stringConversion}`);
+        if (!searchBlog.trim()) {
+            navigate('/search');
+            return;
+        }
+        const params = new URLSearchParams();
+        params.set('searchBlog', searchBlog.trim());
+        navigate(`/search?${params.toString()}`);
     }
 
+
+    useEffect(() => {
+        setToggleTheme(theme === 'dark');
+    }, [theme]);
 
     useEffect(() => {
         const getURL = new URLSearchParams(location.search);
@@ -181,14 +196,14 @@ const Header = () => {
 
                                             <CgProfile size={20} />
 
-                                            <NavLink to={'/dashboard?tab=profile'} className={` transition-all py-2 px-3 rounded-md text-sm font-semibold hover:${theme === 'dark' ? 'bg-gray-600  text-white' : 'bg-gray-300 text-black'}`}>Profile</NavLink>
+                                            <NavLink to={'/dashboard?tab=profile'} className={dropdownLinkClass}>Profile</NavLink>
                                         </div>
 
                                         <hr />
 
                                         <div className="flex  justify-center items-center">
                                             <PiSignOutDuotone size={20} />
-                                            <button className={`transition-all px-5 rounded-md py-2 text-sm font-semibold hover:${theme === 'dark' ? 'bg-gray-600  text-white' : 'bg-gray-300 text-black'}`} onClick={() => signOutHandle()}>SignOut</button>
+                                            <button className={signOutButtonClass} onClick={() => signOutHandle()}>SignOut</button>
                                         </div>
 
 

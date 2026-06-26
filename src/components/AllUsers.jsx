@@ -20,37 +20,32 @@ const AllUsers = () => {
     const [getAllUsers, setAllUsers] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [userId, setUserId] = useState("");
-    const [startPage, setStartPage] = useState(3);
+    const [startPage, setStartPage] = useState(2);
+    const [roleUpdatingId, setRoleUpdatingId] = useState("");
 
-
-
-
-    // Fetch user :
-    useEffect(() => {
-        if (user.isAdmin) {
-            const getUsers = async () => {
-                try {
-                    const userInfo = await apiClient.get(
-                        '/api/user/getusers',
-                        {
-                            headers: {
-                                Authorization: user.token,
-                            },
-                        }
-                    );
-                    const response = userInfo.data.user;
-                    setAllUsers(response);
-                    if (response.length > 8) {
-                        setShowMoreButton(true)
-                    }
-
-                } catch (error) {
-                    console.log(error.message);
-                }
-            };
-            getUsers();
+    const fetchUsers = async () => {
+        try {
+            setLoader(true);
+            const userInfo = await apiClient.get('/api/user/getusers', {
+                headers: {
+                    Authorization: user.token,
+                },
+            });
+            const response = userInfo.data.user;
+            setAllUsers(response);
+            setShowMoreButton(response.length > 8);
+        } catch (error) {
+            toast.error('Failed to load users');
+        } finally {
+            setLoader(false);
         }
-    }, []);
+    };
+
+    useEffect(() => {
+        if (user?.isAdmin) {
+            fetchUsers();
+        }
+    }, [user?.isAdmin]);
 
 
     const deleteUserHandle = (id) => {
@@ -60,6 +55,38 @@ const AllUsers = () => {
 
     const cancelHandle = () => {
         setShowModal(false);
+    };
+
+    const toggleAdminRole = async (targetUser) => {
+        const nextIsAdmin = !targetUser.isAdmin;
+
+        try {
+            setRoleUpdatingId(targetUser._id);
+            const response = await apiClient.patch(
+                `/api/user/${targetUser._id}/admin-role`,
+                { isAdmin: nextIsAdmin },
+                {
+                    headers: {
+                        Authorization: user.token,
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                setAllUsers((users) =>
+                    users.map((item) =>
+                        item._id === targetUser._id
+                            ? { ...item, isAdmin: nextIsAdmin }
+                            : item
+                    )
+                );
+                toast.success(response.data.message);
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to update admin role');
+        } finally {
+            setRoleUpdatingId("");
+        }
     };
 
 
@@ -165,6 +192,13 @@ const AllUsers = () => {
                                 className={`pl-2 md:pl-0 font-semibold md:text-sm text-xs  ${theme === "dark" && "border-gray-500"
                                     } `}
                             >
+                                Role
+                            </Table.HeadCell>
+
+                            <Table.HeadCell
+                                className={`pl-2 md:pl-0 font-semibold md:text-sm text-xs  ${theme === "dark" && "border-gray-500"
+                                    } `}
+                            >
                                 Delete
                             </Table.HeadCell>
                         </Table.Head>
@@ -172,24 +206,24 @@ const AllUsers = () => {
                             <Spinner />
                         ) : (
                             <>
-                                {getAllUsers.map((user) => {
+                                {getAllUsers.map((listedUser) => {
                                     return (
-                                        <Table.Body key={user._id} className="">
+                                        <Table.Body key={listedUser._id} className="">
                                             <Table.Row
-                                                key={user._id}
+                                                key={listedUser._id}
                                                 className={` text-xs md:text-sm  transition-all rounded-md  ${theme === "dark"
                                                     ? "hover:bg-gray-800"
                                                     : "hover:bg-slate-100"
                                                     }`}
                                             >
                                                 <Table.Cell className="text-center text-xs md:text-sm">
-                                                    {new Date(user.updatedAt).toLocaleDateString()}
+                                                    {new Date(listedUser.updatedAt).toLocaleDateString()}
                                                 </Table.Cell>
 
                                                 <Table.Cell className="  flex justify-center ">
-                                                    <NavLink className="text-center" to={`/blog`}>
+                                                    <NavLink className="text-center" to={`/dashboard?tab=profile`}>
                                                         <img
-                                                            src={getImageUrl(user.profilePicture)}
+                                                            src={getImageUrl(listedUser.profilePicture)}
                                                             alt="couldn't load image"
                                                             className="w-10 text-center rounded-full h-10 md:rounded-full "
                                                         />
@@ -200,15 +234,15 @@ const AllUsers = () => {
                                                     className={`pl-5 border-l border-r text-xs text-jusc md:text-sm ${theme === "dark" && "text-gray-300 border-gray-700"
                                                         }`}
                                                 >
-                                                    {user.username}
+                                                    {listedUser.username}
                                                 </Table.Cell>
 
                                                 <Table.Cell className="pl-5">
-                                                    <span className="">{user.email}</span>
+                                                    <span className="">{listedUser.email}</span>
                                                 </Table.Cell>
 
                                                 <Table.Cell className="text-xs md:text-sm text-justify pl-3">
-                                                    {user.isAdmin ? (
+                                                    {listedUser.isAdmin ? (
                                                         <TiTick color="green" size={25} />
                                                     ) : (
                                                         <RxCross2 size={23} color="red" />
@@ -217,9 +251,24 @@ const AllUsers = () => {
 
                                                 <Table.Cell>
                                                     <button
+                                                        type="button"
+                                                        disabled={roleUpdatingId === listedUser._id}
+                                                        className={`text-xs md:text-sm font-medium hover:underline disabled:opacity-50 ${listedUser.isAdmin ? 'text-amber-600' : 'text-blue-600'}`}
+                                                        onClick={() => toggleAdminRole(listedUser)}
+                                                    >
+                                                        {roleUpdatingId === listedUser._id
+                                                            ? 'Updating...'
+                                                            : listedUser.isAdmin
+                                                                ? 'Remove admin'
+                                                                : 'Make admin'}
+                                                    </button>
+                                                </Table.Cell>
+
+                                                <Table.Cell>
+                                                    <button
                                                         className="text-red-500 hover:underline"
                                                         onClick={() => {
-                                                            deleteUserHandle(user._id);
+                                                            deleteUserHandle(listedUser._id);
                                                         }}
                                                     >
                                                         Delete
