@@ -78,6 +78,10 @@ const DashboardSidebar = () => {
                             <span><PiChartPieSliceFill size={21} /></span>
                             <span>Admin Stats</span>
                         </NavLink>
+                        <NavLink to={`?tab=blogs`} className={linkClass('blogs')}>
+                            <span><MdPostAdd size={21} /></span>
+                            <span>All Blogs</span>
+                        </NavLink>
                         <NavLink to={`?tab=users`} className={linkClass('users')}>
                             <span><FaUsersCog size={21} /></span>
                             <span>All Users</span>

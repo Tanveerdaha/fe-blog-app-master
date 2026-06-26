@@ -80,7 +80,7 @@ const MyBlogs = () => {
             <div
                 className={`transition-all min-h-screen border my-2 mx-2 rounded-md w-full items-center md:mx-5 table-auto overflow-x-scroll scrollbar ${theme === "dark" ? "border-zinc-700" : "border-gray-300"}`}
             >
-                <Table hoverable className="my-5 relative z-10">
+                <Table hoverable className="my-5">
                     <Table.Head className={`text-base ${theme === "dark" ? "text-gray-100 bg-zinc-700" : "text-gray-700 bg-gray-300"}`}>
                         <Table.HeadCell>Updated on</Table.HeadCell>
                         <Table.HeadCell>Image</Table.HeadCell>

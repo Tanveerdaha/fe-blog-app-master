@@ -4,9 +4,8 @@ import apiClient from "../utils/apiClient";
 import { Table } from "flowbite-react";
 import Spinner from "../assests/spinner/Spinner";
 import { NavLink } from "react-router-dom";
-import { ImWarning } from "react-icons/im";
-import { IoClose } from "react-icons/io5";
 import toast from "react-hot-toast";
+import ConfirmModal from './ConfirmModal';
 
 const AllComments = () => {
     const { user } = useSelector((state) => state.userSliceApp);
@@ -17,6 +16,7 @@ const AllComments = () => {
     const [showModal, setShowModal] = useState(false);
     const [commentIdToDelete, setCommentIdToDelete] = useState("");
     const [startPage, setStartPage] = useState(1);
+    const [isDeleting, setIsDeleting] = useState(false);
 
 
 
@@ -93,6 +93,7 @@ const AllComments = () => {
 
     const yesToDeleteComment = async () => {
         try {
+            setIsDeleting(true);
             const response = await apiClient.delete(`/api/comment/delete-comment/${commentIdToDelete}`, {
 
                 data: {
@@ -111,6 +112,8 @@ const AllComments = () => {
         } catch (error) {
             toast.error(error.message)
             console.log(error.message);
+        } finally {
+            setIsDeleting(false);
         }
     }
 
@@ -121,7 +124,7 @@ const AllComments = () => {
                     } mx-2 md:mx-0`}
             >
                 {getAllComments.length > 0 && (
-                    <Table hoverable className={`my-5 relative z-10`}>
+                    <Table hoverable className="my-5">
                         <Table.Head
                             className={` text-base   ${theme === "dark"
                                 ? "text-gray-100 bg-gray-700"
@@ -242,54 +245,13 @@ const AllComments = () => {
                 )}
             </div>
 
-            {/* Showing Modal before deleting the Comments */}
-            {showModal && (
-                <div className="fixed inset-0  transition-all backdrop-blur-sm bg-opacity-30 flex justify-center items-center">
-                    <div
-                        className={`flex flex-col gap-7  shadow-md w-80 md:w-96 bg- rounded-md  px-3 justify-center items-center py-5   ${theme === "dark"
-                            ? "bg-zinc-800 text-gray-200"
-                            : "bg-white text-gray-900"
-                            }`}
-                    >
-                        <button
-                            className="place-self-end transition-all"
-                            onClick={cancelHandle}
-                        >
-                            <IoClose
-                                size={25}
-                                className=" active:animate-ping transition-all"
-                            />
-                        </button>
-
-                        <div className="">
-                            <ImWarning size={40} />
-                        </div>
-
-                        <div className="">
-                            <p className="text-base text-center">
-                                Are you sure you want to delete this comment ?
-                            </p>
-                        </div>
-
-                        <div className="flex gap-4">
-                            <button
-                                className={`text-sm  rounded-md transition-all active:bg-red-800 font-semibold py-2 px-2 active:scale-95  ${theme === "dark" ? "bg-red-700" : "bg-red-400"
-                                    }`}
-                                onClick={yesToDeleteComment}
-                            >
-                                Yes,I'm sure.
-                            </button>
-
-                            <button
-                                className=" border text-sm font-semibold  active:scale-95 transition-all bg-transparent rounded-md py-2 px-3 active:bg-gray-600"
-                                onClick={cancelHandle}
-                            >
-                                No, cancel.
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmModal
+                open={showModal}
+                onClose={cancelHandle}
+                onConfirm={yesToDeleteComment}
+                message="Are you sure you want to delete this comment?"
+                isLoading={isDeleting}
+            />
         </>
     );
 };

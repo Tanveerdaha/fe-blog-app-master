@@ -6,10 +6,11 @@ import { useSelector } from 'react-redux';
 import AllUsers from "../components/AllUsers";
 import AllComments from "../components/AllComments";
 import DashBaordComp from "../components/DashBaordComp";
+import AllBlogs from "../components/AllBlogs";
 import MyBlogs from "../components/MyBlogs";
 import MyComments from "../components/MyComments";
 
-const ADMIN_TABS = ['dash', 'users', 'comments'];
+const ADMIN_TABS = ['dash', 'blogs', 'users', 'comments'];
 
 const Dashboard = () => {
 
@@ -46,6 +47,7 @@ const Dashboard = () => {
 
                 <div className="flex-1 w-full">
                     {tab === 'dash' && user?.isAdmin && <DashBaordComp />}
+                    {tab === 'blogs' && user?.isAdmin && <AllBlogs />}
                     {tab === 'profile' && <DashboardProfile />}
                     {tab === 'my-blogs' && <MyBlogs />}
                     {tab === 'my-comments' && <MyComments />}

@@ -6,10 +6,9 @@ import Spinner from "../assests/spinner/Spinner";
 import { NavLink } from "react-router-dom";
 import { RxCross2 } from "react-icons/rx";
 import { TiTick } from "react-icons/ti";
-import { ImWarning } from "react-icons/im";
-import { IoClose } from "react-icons/io5";
 import toast from "react-hot-toast";
 import getImageUrl from '../utils/getImageUrl';
+import ConfirmModal from './ConfirmModal';
 
 const AllUsers = () => {
 
@@ -21,7 +20,7 @@ const AllUsers = () => {
     const [showModal, setShowModal] = useState(false);
     const [userId, setUserId] = useState("");
     const [startPage, setStartPage] = useState(2);
-    const [roleUpdatingId, setRoleUpdatingId] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const fetchUsers = async () => {
         try {
@@ -57,44 +56,10 @@ const AllUsers = () => {
         setShowModal(false);
     };
 
-    const toggleAdminRole = async (targetUser) => {
-        const nextIsAdmin = !targetUser.isAdmin;
-
-        try {
-            setRoleUpdatingId(targetUser._id);
-            const response = await apiClient.patch(
-                `/api/user/${targetUser._id}/admin-role`,
-                { isAdmin: nextIsAdmin },
-                {
-                    headers: {
-                        Authorization: user.token,
-                    },
-                }
-            );
-
-            if (response.status === 200) {
-                setAllUsers((users) =>
-                    users.map((item) =>
-                        item._id === targetUser._id
-                            ? { ...item, isAdmin: nextIsAdmin }
-                            : item
-                    )
-                );
-                toast.success(response.data.message);
-            }
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to update admin role');
-        } finally {
-            setRoleUpdatingId("");
-        }
-    };
-
-
     //   Delete user Api :
     const deleteUser = async () => {
-
         try {
-            setShowModal(false)
+            setIsDeleting(true);
 
             const userDelete = await apiClient.delete(`/api/user/deleteuser/${userId}`, {
 
@@ -107,11 +72,14 @@ const AllUsers = () => {
             })
             if (userDelete.status === 200) {
                 setAllUsers((users) => users.filter(users => users._id !== userId));
+                setShowModal(false);
                 toast.success('User has been deleted successfully');
             }
         } catch (error) {
             toast.error(error.response.data.message);
             console.log(error.response.data.message);
+        } finally {
+            setIsDeleting(false);
         }
 
     }
@@ -148,7 +116,7 @@ const AllUsers = () => {
             <div className={`min-h-screen shadow-sm border my-2 rounded-md w-full md:mx-5 table-auto overflow-x-scroll scrollbar  ${theme === 'dark' ? 'border-zinc-700' : 'border-gray-200'} mx-2 md:mx-0`}>
                 {
                     getAllUsers.length > 0 &&
-                    <Table hoverable className={`my-5 relative z-10`}>
+                    <Table hoverable className="my-5">
                         <Table.Head
                             className={` text-base   ${theme === "dark" ? "text-gray-100 bg-gray-700" : "text-gray-700 bg-gray-300"
                                 } `}
@@ -192,13 +160,6 @@ const AllUsers = () => {
                                 className={`pl-2 md:pl-0 font-semibold md:text-sm text-xs  ${theme === "dark" && "border-gray-500"
                                     } `}
                             >
-                                Role
-                            </Table.HeadCell>
-
-                            <Table.HeadCell
-                                className={`pl-2 md:pl-0 font-semibold md:text-sm text-xs  ${theme === "dark" && "border-gray-500"
-                                    } `}
-                            >
                                 Delete
                             </Table.HeadCell>
                         </Table.Head>
@@ -221,10 +182,10 @@ const AllUsers = () => {
                                                 </Table.Cell>
 
                                                 <Table.Cell className="  flex justify-center ">
-                                                    <NavLink className="text-center" to={`/dashboard?tab=profile`}>
+                                                    <NavLink className="text-center" to={`/user/${listedUser.username}`}>
                                                         <img
                                                             src={getImageUrl(listedUser.profilePicture)}
-                                                            alt="couldn't load image"
+                                                            alt={`${listedUser.username} profile`}
                                                             className="w-10 text-center rounded-full h-10 md:rounded-full "
                                                         />
                                                     </NavLink>
@@ -234,7 +195,9 @@ const AllUsers = () => {
                                                     className={`pl-5 border-l border-r text-xs text-jusc md:text-sm ${theme === "dark" && "text-gray-300 border-gray-700"
                                                         }`}
                                                 >
-                                                    {listedUser.username}
+                                                    <NavLink to={`/user/${listedUser.username}`} className="text-teal-500 hover:underline">
+                                                        {listedUser.username}
+                                                    </NavLink>
                                                 </Table.Cell>
 
                                                 <Table.Cell className="pl-5">
@@ -247,21 +210,6 @@ const AllUsers = () => {
                                                     ) : (
                                                         <RxCross2 size={23} color="red" />
                                                     )}
-                                                </Table.Cell>
-
-                                                <Table.Cell>
-                                                    <button
-                                                        type="button"
-                                                        disabled={roleUpdatingId === listedUser._id}
-                                                        className={`text-xs md:text-sm font-medium hover:underline disabled:opacity-50 ${listedUser.isAdmin ? 'text-amber-600' : 'text-blue-600'}`}
-                                                        onClick={() => toggleAdminRole(listedUser)}
-                                                    >
-                                                        {roleUpdatingId === listedUser._id
-                                                            ? 'Updating...'
-                                                            : listedUser.isAdmin
-                                                                ? 'Remove admin'
-                                                                : 'Make admin'}
-                                                    </button>
                                                 </Table.Cell>
 
                                                 <Table.Cell>
@@ -300,56 +248,13 @@ const AllUsers = () => {
             </div>
 
 
-            {/* Showing Modal before deleting the user */}
-            {
-                showModal &&
-
-                <div className="fixed inset-0  transition-all backdrop-blur-sm bg-opacity-30 flex justify-center items-center">
-                    <div
-                        className={`flex flex-col gap-7  shadow-md w-80 md:w-96 bg- rounded-md  px-3 justify-center items-center py-5   ${theme === "dark"
-                            ? "bg-zinc-800 text-gray-200"
-                            : "bg-white text-gray-900"
-                            }`}
-                    >
-                        <button
-                            className="place-self-end transition-all"
-                            onClick={cancelHandle}
-                        >
-                            <IoClose
-                                size={25}
-                                className=" active:animate-ping transition-all"
-                            />
-                        </button>
-
-                        <div className="">
-                            <ImWarning size={40} />
-                        </div>
-
-                        <div className="">
-                            <p className="text-base text-center">
-                                Are you sure you want to delete this user ?
-                            </p>
-                        </div>
-
-                        <div className="flex gap-4">
-                            <button
-                                className={`text-sm  rounded-md transition-all active:bg-red-800 font-semibold py-2 px-2 active:scale-95  ${theme === "dark" ? "bg-red-700" : "bg-red-400"
-                                    }`}
-                                onClick={deleteUser}
-                            >
-                                Yes,I'm sure.
-                            </button>
-
-                            <button
-                                className=" border text-sm font-semibold  active:scale-95 transition-all bg-transparent rounded-md py-2 px-3 active:bg-gray-600"
-                                onClick={cancelHandle}
-                            >
-                                No, cancel.
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            }
+            <ConfirmModal
+                open={showModal}
+                onClose={cancelHandle}
+                onConfirm={deleteUser}
+                message="Are you sure you want to delete this user?"
+                isLoading={isDeleting}
+            />
         </>
     );
 };

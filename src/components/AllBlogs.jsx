@@ -1,212 +1,145 @@
 import React, { useEffect, useState } from "react";
 import apiClient from "../utils/apiClient";
 import { useSelector } from "react-redux";
-import { Table, Toast } from "flowbite-react";
+import { Table } from "flowbite-react";
 import { NavLink, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import BlogPopupModal from "./BlogPopupModal";
 import BlogLoader from "../assests/blogSpinner/BlogLoader";
 import getImageUrl from '../utils/getImageUrl';
+import AuthorLink from './AuthorLink';
 
 const AllBlogs = () => {
     const { user } = useSelector((state) => state.userSliceApp);
     const { theme } = useSelector((state) => state.themeSliceApp);
-    const [userBlogs, setUserBlogs] = useState([]);
+    const [blogs, setBlogs] = useState([]);
     const [showMoreButton, setShowMoreButton] = useState(false);
     const [blogModal, setBlogModal] = useState(false);
     const [blogId, setBlogId] = useState("");
     const [loader, setLoader] = useState(false);
     const [page, setPage] = useState(2);
 
-    // Get blogs fetch api :
-    useEffect(() => {
-        if (user.isAdmin) {
-            const getBlogs = async () => {
-                setLoader(true);
-                try {
-                    const fetchBlogs = await apiClient.get(
-                        `/api/blog/get-all-blogs?userId=${user._id}`
-                    );
+    const fetchBlogs = async (pageNum = 1, append = false) => {
+        try {
+            setLoader(!append);
+            const response = await apiClient.get(
+                `/api/blog/get-all-blogs?page=${pageNum}`,
+                pageNum === 1 && user?.token
+                    ? { headers: { Authorization: user.token } }
+                    : undefined
+            );
 
-                    if (fetchBlogs.status === 200) {
-                        setLoader(false);
-                        setUserBlogs(fetchBlogs.data.blogs);
-
-                        if (fetchBlogs.data.blogs) {
-                            if (fetchBlogs.data.blogs.length > 5) {
-                                setShowMoreButton(true);
-                            } else {
-                                setShowMoreButton(false);
-                            }
-                        }
-                    }
-                } catch (error) {
-                    setLoader(false);
-                    toast.error("An unexpected error occurred!");
-                    console.log(error);
-                }
-            };
-            getBlogs();
+            if (response.status === 200) {
+                const fetched = response.data.blogs || [];
+                setBlogs((prev) => (append ? [...prev, ...fetched] : fetched));
+                setShowMoreButton(fetched.length >= 8);
+            }
+        } catch (error) {
+            toast.error("Failed to load blogs");
+        } finally {
+            setLoader(false);
         }
-    }, [user._id]);
+    };
+
+    useEffect(() => {
+        if (user?.isAdmin) {
+            fetchBlogs(1);
+        }
+    }, [user?.isAdmin]);
 
     const deleteBlogHandle = (id) => {
         setBlogId(id);
         setBlogModal(true);
     };
 
-    // Show More button api :
-    const fetchBlogs = async (page = 2) => {
-        try {
-            const response = await apiClient.get(
-                `/api/blog/get-all-blogs?userId=${user._id}&page=${page}`
-            );
-            if (response.status === 200) {
-                setUserBlogs([...response.data.blogs, ...userBlogs]);
-                setPage(page + 1);
-
-                if (response.data.blogs.length === 0) {
-                    setShowMoreButton(false);
-                    toast.success("All blogs have been fetched");
-                }
-            }
-        } catch (error) {
-            console.log(error.message);
-        }
-    };
-
     const showMoreBlogsButton = () => {
-        fetchBlogs(page);
+        fetchBlogs(page, true);
+        setPage((prev) => prev + 1);
     };
 
     return (
         <>
             {user && user.isAdmin ? (
                 <div
-                    className={`transition-all min-h-screen border  my-2 mx-2 rounded-md w-full items-center md:mx-5 table-auto overflow-x-scroll scrollbar ${theme === "dark" ? "border-zinc-700" : "border-gray-300"
-                        }`}
+                    className={`transition-all min-h-screen border my-2 mx-2 rounded-md w-full items-center md:mx-5 table-auto overflow-x-scroll scrollbar ${theme === "dark" ? "border-zinc-700" : "border-gray-300"}`}
                 >
-                    <Table hoverable className="my-5 relative z-10">
+                    <div className="px-4 py-4">
+                        <h1 className="text-xl font-semibold">All Blogs</h1>
+                        <p className="text-sm text-gray-500 mt-1">View all posts. Delete only — editing is done by each blog owner.</p>
+                    </div>
+
+                    <Table hoverable className="my-5">
                         <Table.Head
-                            className={`text-base ${theme === "dark"
-                                    ? "text-gray-100 bg-zinc-700 "
-                                    : "text-gray-700 bg-gray-300"
-                                }`}
+                            className={`text-base ${theme === "dark" ? "text-gray-100 bg-zinc-700" : "text-gray-700 bg-gray-300"}`}
                         >
-                            <Table.HeadCell
-                                className={`  md:text-sm text-xs  ${theme === "dark" && "border-gray-500"
-                                    } items-center justify-center px-5`}
-                            >
-                                Updated on
-                            </Table.HeadCell>
-
-                            <Table.HeadCell
-                                className={` px-5 md:px-2 md:text-sm text-xs ${theme === "dark" && "border-gray-500"
-                                    } `}
-                            >
-                                Image
-                            </Table.HeadCell>
-
-                            <Table.HeadCell
-                                className={` md:text-sm text-xs ${theme === "dark" && "border-gray-500"
-                                    }  text-center`}
-                            >
-                                Blog Title
-                            </Table.HeadCell>
-
-                            <Table.HeadCell
-                                className={` md:text-sm text-xs ${theme === "dark" && "border-gray-500"
-                                    } px-5`}
-                            >
-                                Category
-                            </Table.HeadCell>
-
-                            <Table.HeadCell
-                                className={` md:text-sm text-xs  ${theme === "dark" && "border-gray-500"
-                                    } px-5 `}
-                            >
-                                <span>Edit</span>
-                            </Table.HeadCell>
-
-                            <Table.HeadCell
-                                className={`md:text-sm text-xs ${theme === "dark" && "border-gray-500"
-                                    } px-5`}
-                            >
-                                Delete
-                            </Table.HeadCell>
+                            <Table.HeadCell className="md:text-sm text-xs px-5">Updated on</Table.HeadCell>
+                            <Table.HeadCell className="md:text-sm text-xs">Image</Table.HeadCell>
+                            <Table.HeadCell className="md:text-sm text-xs text-center">Blog Title</Table.HeadCell>
+                            <Table.HeadCell className="md:text-sm text-xs px-5">Author</Table.HeadCell>
+                            <Table.HeadCell className="md:text-sm text-xs px-5">Category</Table.HeadCell>
+                            <Table.HeadCell className="md:text-sm text-xs px-5">Delete</Table.HeadCell>
                         </Table.Head>
+
                         {loader ? (
-                            <Table.Body className="">
+                            <Table.Body>
                                 <Table.Row>
-                                    <Table.Cell className="text-center mt-40">
+                                    <Table.Cell colSpan="6" className="text-center py-10">
                                         <BlogLoader />
                                     </Table.Cell>
                                 </Table.Row>
                             </Table.Body>
-                        ) : userBlogs.length === 0 ? (
+                        ) : blogs.length === 0 ? (
                             <Table.Body>
                                 <Table.Row>
-                                    <Table.Cell colSpan="6" className="text-center">
+                                    <Table.Cell colSpan="6" className="text-center py-10">
                                         No blogs found
                                     </Table.Cell>
                                 </Table.Row>
                             </Table.Body>
                         ) : (
-                            userBlogs.map((data, index) => (
-                                <Table.Body key={index}>
+                            blogs.map((blog) => (
+                                <Table.Body key={blog._id}>
                                     <Table.Row
-                                        className={`text-center text-xs md:text-sm transition-all rounded-md ${theme === "dark"
-                                                ? "hover:bg-gray-800"
-                                                : "hover:bg-gray-100"
-                                            }`}
+                                        className={`text-center text-xs md:text-sm transition-all rounded-md ${theme === "dark" ? "hover:bg-gray-800" : "hover:bg-gray-100"}`}
                                     >
-                                        {/* Blog Date  */}
                                         <Table.Cell className="text-xs md:text-sm">
-                                            {new Date(data.updatedAt).toLocaleDateString()}
+                                            {new Date(blog.updatedAt).toLocaleDateString()}
                                         </Table.Cell>
 
-                                        {/* Blog Image  */}
                                         <Table.Cell className="flex justify-center">
-                                            <NavLink
-                                                className="text-center"
-                                                to={`/blog/${data.slug}`}
-                                            >
+                                            <NavLink to={`/blog/${blog.slug}`}>
                                                 <img
-                                                    src={getImageUrl(data.blogImgFile)}
-                                                    alt="blogImage"
-                                                    className="w-10 text-center rounded-full h-10 md:w-20 md:rounded-md"
+                                                    src={getImageUrl(blog.blogImgFile)}
+                                                    alt={blog.blogTitle}
+                                                    className="w-10 h-10 md:w-20 md:h-14 object-cover rounded-md"
                                                 />
                                             </NavLink>
                                         </Table.Cell>
 
-                                        {/* Blog Title  */}
                                         <Table.Cell
-                                            className={`border-l border-r px-5 md:pl-10 text-xs md:text-justify text-left md:text-sm ${theme === "dark" && "text-gray-300 border-gray-700"
-                                                }`}
+                                            className={`border-l border-r px-5 text-xs md:text-sm text-left ${theme === "dark" ? "text-gray-300 border-gray-700" : ""}`}
                                         >
-                                            <NavLink className="" to={`/blog/${data.slug}`}>
-                                                <p>{data.blogTitle}</p>
+                                            <NavLink to={`/blog/${blog.slug}`} className="hover:underline">
+                                                {blog.blogTitle}
                                             </NavLink>
                                         </Table.Cell>
 
-                                        {/* Blog Category  */}
+                                        <Table.Cell className="text-xs md:text-sm">
+                                            <AuthorLink
+                                                username={blog.authorUsername}
+                                                profilePicture={blog.authorProfilePicture}
+                                            />
+                                        </Table.Cell>
+
                                         <Table.Cell className="text-xs md:text-sm text-justify pl-5">
-                                            {data.blogCategory}
+                                            {blog.blogCategory}
                                         </Table.Cell>
+
                                         <Table.Cell>
-                                            {/* Blog Edit Button  */}
-                                            <NavLink
-                                                to={`/update-blog/${data._id}`}
-                                                className="text-green-500 hover:underline"
-                                            >
-                                                Edit
-                                            </NavLink>
-                                        </Table.Cell>
-                                        <Table.Cell>
-                                            {/* Blog Delete Button  */}
                                             <button
+                                                type="button"
                                                 className="text-red-500 hover:underline"
-                                                onClick={() => deleteBlogHandle(data._id)}
+                                                onClick={() => deleteBlogHandle(blog._id)}
                                             >
                                                 Delete
                                             </button>
@@ -216,13 +149,15 @@ const AllBlogs = () => {
                             ))
                         )}
                     </Table>
+
                     {showMoreButton && (
                         <div className="text-center my-5">
                             <button
+                                type="button"
                                 onClick={showMoreBlogsButton}
                                 className={`transition-all active:scale-95 hover:bg-blue-900 py-1 font-semibold text-xs px-2 border rounded-sm ${theme === "dark"
-                                        ? "bg-gray-700 active:bg-gray-800 text-gray-300 border-gray-400"
-                                        : "active:bg-gray-600 active:text-white hover:text-white bg-gray-300 text-gray-800 border-gray-500"
+                                    ? "bg-gray-700 active:bg-gray-800 text-gray-300 border-gray-400"
+                                    : "active:bg-gray-600 active:text-white hover:text-white bg-gray-300 text-gray-800 border-gray-500"
                                     }`}
                             >
                                 Show more..
@@ -239,13 +174,12 @@ const AllBlogs = () => {
                 </div>
             )}
 
-            {/*  Conditionally rendering the popup modal :  */}
             {blogModal && (
                 <BlogPopupModal
-                    blogModal={blogModal}
                     setBlogModal={setBlogModal}
                     blogId={blogId}
-                    setUserBlogs={setUserBlogs}
+                    setUserBlogs={setBlogs}
+                    message="Are you sure you want to delete this blog?"
                 />
             )}
         </>

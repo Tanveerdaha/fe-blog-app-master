@@ -71,9 +71,8 @@ const UpdateBlog = () => {
 
                 if (response) {
                     const isOwner = response.userId?.toString() === user._id?.toString();
-                    const isAdmin = user?.isAdmin;
 
-                    if (!isOwner && !isAdmin) {
+                    if (!isOwner) {
                         toast.error('You can only edit your own blogs');
                         navigate('/dashboard?tab=my-blogs');
                         return;

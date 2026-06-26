@@ -7,10 +7,9 @@ import toast from 'react-hot-toast';
 import apiClient from '../utils/apiClient';
 import UserComment from './UserComment';
 import getImageUrl from '../utils/getImageUrl';
-import { IoClose } from "react-icons/io5";
-import { ImWarning } from "react-icons/im";
 import Spinner from '../assests/spinner/Spinner';
 import { buildCommentTree } from '../utils/commentTree';
+import ConfirmModal from './ConfirmModal';
 
 const CommentCard = ({ blogId, blogOwnerId }) => {
 
@@ -24,6 +23,7 @@ const CommentCard = ({ blogId, blogOwnerId }) => {
     const [modal, setModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [propsCommentId, setPropsCommentId] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const loadComments = async () => {
         try {
@@ -129,6 +129,7 @@ const CommentCard = ({ blogId, blogOwnerId }) => {
 
     const okToDeleteComment = async () => {
         try {
+            setIsDeleting(true);
             const deleteResponse = await apiClient.delete(`/api/comment/delete-comment/${propsCommentId}`, {
                 headers: { Authorization: user.token },
                 data: { user }
@@ -141,6 +142,8 @@ const CommentCard = ({ blogId, blogOwnerId }) => {
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to delete comment');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -228,25 +231,14 @@ const CommentCard = ({ blogId, blogOwnerId }) => {
                 ))
             )}
 
-            {modal && (
-                <div className="fixed inset-0 backdrop-blur-sm bg-opacity-30 flex justify-center items-center z-50">
-                    <div className={`flex flex-col gap-7 shadow-md w-80 md:w-96 rounded-md px-3 py-5 ${theme === "dark" ? "bg-zinc-800 text-gray-200" : "bg-white text-gray-900"}`}>
-                        <button className="place-self-end" onClick={() => setModal(false)}>
-                            <IoClose size={25} />
-                        </button>
-                        <ImWarning size={40} className="self-center" />
-                        <p className="text-base text-center">Are you sure you want to delete this comment?</p>
-                        <div className="flex gap-4 justify-center">
-                            <button className="bg-red-500 text-white rounded-md py-2 px-4 text-sm font-semibold" onClick={okToDeleteComment}>
-                                Yes, delete
-                            </button>
-                            <button className="border rounded-md py-2 px-4 text-sm font-semibold" onClick={() => setModal(false)}>
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmModal
+                open={modal}
+                onClose={() => !isDeleting && setModal(false)}
+                onConfirm={okToDeleteComment}
+                message="Are you sure you want to delete this comment?"
+                confirmLabel="Yes, delete"
+                isLoading={isDeleting}
+            />
         </div>
     );
 };

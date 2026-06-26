@@ -67,7 +67,7 @@ const MyComments = () => {
             </div>
 
             <div className={wrapperClass}>
-                <Table hoverable className="my-5 relative z-10">
+                <Table hoverable className="my-5">
                     <Table.Head className={headClass}>
                         <Table.HeadCell className={theme === "dark" ? "border-gray-600" : ""}>Date</Table.HeadCell>
                         <Table.HeadCell className={theme === "dark" ? "border-gray-600" : ""}>Comment</Table.HeadCell>
