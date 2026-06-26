@@ -2,14 +2,17 @@ import { Table } from 'flowbite-react';
 
 const listingTableTheme = {
     root: {
-        shadow: 'hidden',
+        shadow: 'hidden pointer-events-none',
+        wrapper: 'relative isolate',
     },
 };
 
 const ListingTable = ({ children, className = '', hoverable = true, ...props }) => (
-    <Table hoverable={hoverable} theme={listingTableTheme} className={className} {...props}>
-        {children}
-    </Table>
+    <div className={className}>
+        <Table hoverable={hoverable} theme={listingTableTheme} {...props}>
+            {children}
+        </Table>
+    </div>
 );
 
 ListingTable.Head = Table.Head;

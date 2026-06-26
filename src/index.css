@@ -35,3 +35,13 @@
   word-break: break-word;
   overflow-wrap: break-word;
 }
+
+/* Flowbite Table injects an absolute white shadow layer that covers listing rows */
+[data-testid="table-element"] > div:first-child {
+  display: none !important;
+}
+
+[data-testid="table-element"] table {
+  position: relative;
+  z-index: 0;
+}
