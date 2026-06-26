@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import apiClient from "../utils/apiClient";
 import { useSelector } from "react-redux";
-import { Table } from "flowbite-react";
 import { NavLink, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import BlogPopupModal from "./BlogPopupModal";
 import BlogLoader from "../assests/blogSpinner/BlogLoader";
 import getImageUrl from '../utils/getImageUrl';
+import ListingTable from './ListingTable';
 
 const MyBlogs = () => {
     const { user } = useSelector((state) => state.userSliceApp);
@@ -78,60 +78,60 @@ const MyBlogs = () => {
             </div>
 
             <div
-                className={`transition-all min-h-screen border my-2 mx-2 rounded-md w-full items-center md:mx-5 table-auto overflow-x-scroll scrollbar ${theme === "dark" ? "border-zinc-700" : "border-gray-300"}`}
+                className={`transition-all min-h-0 border my-2 mx-2 rounded-md w-full md:mx-5 overflow-x-auto scrollbar ${theme === "dark" ? "border-zinc-700" : "border-gray-300"}`}
             >
-                <Table hoverable className="my-5">
-                    <Table.Head className={`text-base ${theme === "dark" ? "text-gray-100 bg-zinc-700" : "text-gray-700 bg-gray-300"}`}>
-                        <Table.HeadCell>Updated on</Table.HeadCell>
-                        <Table.HeadCell>Image</Table.HeadCell>
-                        <Table.HeadCell>Blog Title</Table.HeadCell>
-                        <Table.HeadCell>Category</Table.HeadCell>
-                        <Table.HeadCell>Edit</Table.HeadCell>
-                        <Table.HeadCell>Delete</Table.HeadCell>
-                    </Table.Head>
+                <ListingTable className="my-5">
+                    <ListingTable.Head className={`text-base ${theme === "dark" ? "text-gray-100 bg-zinc-700" : "text-gray-700 bg-gray-300"}`}>
+                        <ListingTable.HeadCell>Updated on</ListingTable.HeadCell>
+                        <ListingTable.HeadCell>Image</ListingTable.HeadCell>
+                        <ListingTable.HeadCell>Blog Title</ListingTable.HeadCell>
+                        <ListingTable.HeadCell>Category</ListingTable.HeadCell>
+                        <ListingTable.HeadCell>Edit</ListingTable.HeadCell>
+                        <ListingTable.HeadCell>Delete</ListingTable.HeadCell>
+                    </ListingTable.Head>
 
                     {loader ? (
-                        <Table.Body>
-                            <Table.Row>
-                                <Table.Cell colSpan="6" className="text-center">
+                        <ListingTable.Body>
+                            <ListingTable.Row>
+                                <ListingTable.Cell colSpan="6" className="text-center">
                                     <BlogLoader />
-                                </Table.Cell>
-                            </Table.Row>
-                        </Table.Body>
+                                </ListingTable.Cell>
+                            </ListingTable.Row>
+                        </ListingTable.Body>
                     ) : userBlogs.length === 0 ? (
-                        <Table.Body>
-                            <Table.Row>
-                                <Table.Cell colSpan="6" className="text-center py-10">
+                        <ListingTable.Body>
+                            <ListingTable.Row>
+                                <ListingTable.Cell colSpan="6" className="text-center py-10">
                                     <p className="text-gray-500 mb-3">You have not created any blogs yet.</p>
                                     <Link to="/create-blog" className="text-blue-500 hover:underline">Create your first blog</Link>
-                                </Table.Cell>
-                            </Table.Row>
-                        </Table.Body>
+                                </ListingTable.Cell>
+                            </ListingTable.Row>
+                        </ListingTable.Body>
                     ) : (
                         userBlogs.map((data) => (
-                            <Table.Body key={data._id}>
-                                <Table.Row className={`text-center text-xs md:text-sm ${theme === "dark" ? "hover:bg-gray-800" : "hover:bg-gray-100"}`}>
-                                    <Table.Cell>{new Date(data.updatedAt).toLocaleDateString()}</Table.Cell>
-                                    <Table.Cell className="flex justify-center">
+                            <ListingTable.Body key={data._id}>
+                                <ListingTable.Row className={`text-center text-xs md:text-sm ${theme === "dark" ? "hover:bg-gray-800" : "hover:bg-gray-100"}`}>
+                                    <ListingTable.Cell>{new Date(data.updatedAt).toLocaleDateString()}</ListingTable.Cell>
+                                    <ListingTable.Cell className="flex justify-center">
                                         <NavLink to={`/blog/${data.slug}`}>
                                             <img src={getImageUrl(data.blogImgFile)} alt="blog" className="w-10 h-10 md:w-20 md:h-14 object-cover rounded-md" />
                                         </NavLink>
-                                    </Table.Cell>
-                                    <Table.Cell>
+                                    </ListingTable.Cell>
+                                    <ListingTable.Cell>
                                         <NavLink to={`/blog/${data.slug}`} className="hover:underline">{data.blogTitle}</NavLink>
-                                    </Table.Cell>
-                                    <Table.Cell>{data.blogCategory}</Table.Cell>
-                                    <Table.Cell>
+                                    </ListingTable.Cell>
+                                    <ListingTable.Cell>{data.blogCategory}</ListingTable.Cell>
+                                    <ListingTable.Cell>
                                         <NavLink to={`/update-blog/${data._id}`} className="text-green-500 hover:underline">Edit</NavLink>
-                                    </Table.Cell>
-                                    <Table.Cell>
+                                    </ListingTable.Cell>
+                                    <ListingTable.Cell>
                                         <button className="text-red-500 hover:underline" onClick={() => deleteBlogHandle(data._id)}>Delete</button>
-                                    </Table.Cell>
-                                </Table.Row>
-                            </Table.Body>
+                                    </ListingTable.Cell>
+                                </ListingTable.Row>
+                            </ListingTable.Body>
                         ))
                     )}
-                </Table>
+                </ListingTable>
 
                 {showMoreButton && (
                     <div className="text-center my-5">

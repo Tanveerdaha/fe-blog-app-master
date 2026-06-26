@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import apiClient from "../utils/apiClient";
-import { Table } from "flowbite-react";
 import Spinner from "../assests/spinner/Spinner";
 import { NavLink } from "react-router-dom";
 import toast from "react-hot-toast";
 import ConfirmModal from './ConfirmModal';
+import ListingTable from './ListingTable';
 
 const AllComments = () => {
     const { user } = useSelector((state) => state.userSliceApp);
@@ -18,19 +18,20 @@ const AllComments = () => {
     const [startPage, setStartPage] = useState(1);
     const [isDeleting, setIsDeleting] = useState(false);
 
+    const wrapperClass = `min-h-0 shadow-sm border my-2 rounded-md w-full md:mx-5 overflow-x-auto scrollbar mx-2 md:mx-0 ${
+        theme === 'dark' ? 'border-zinc-700' : 'border-gray-200'
+    }`;
 
+    const headClass = `text-base ${theme === 'dark' ? 'text-gray-100 bg-gray-700' : 'text-gray-700 bg-gray-300'}`;
+    const rowClass = `text-xs md:text-sm transition-all rounded-md ${
+        theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-slate-100'
+    }`;
 
-
-
-
-
-
-
-    // Fetch Comments :
     useEffect(() => {
-        if (user.isAdmin) {
+        if (user?.isAdmin) {
             const getComments = async () => {
                 try {
+                    setLoader(true);
                     const commentInfo = await apiClient.get('/api/comment/get-all-comments', {
                         headers: {
                             Authorization: user.token,
@@ -38,16 +39,16 @@ const AllComments = () => {
                     });
                     const response = commentInfo.data.comments;
                     setAllComments(response);
-                    if (response.length > 4) {
-                        setShowMoreButton(true);
-                    }
+                    setShowMoreButton(response.length > 4);
                 } catch (error) {
-                    console.log(error.message);
+                    toast.error('Failed to load comments');
+                } finally {
+                    setLoader(false);
                 }
             };
             getComments();
         }
-    }, []);
+    }, [user?.isAdmin]);
 
     const deleteUserHandle = (id) => {
         setShowModal(true);
@@ -119,125 +120,84 @@ const AllComments = () => {
 
     return (
         <>
-            <div
-                className={`min-h-screen shadow-sm border my-2 rounded-md w-full md:mx-5 table-auto overflow-x-scroll scrollbar  ${theme === "dark" ? "border-zinc-700" : "border-gray-200"
-                    } mx-2 md:mx-0`}
-            >
-                {getAllComments.length > 0 && (
-                    <Table hoverable className="my-5">
-                        <Table.Head
-                            className={` text-base   ${theme === "dark"
-                                ? "text-gray-100 bg-gray-700"
-                                : "text-gray-700 bg-gray-300"
-                                } `}
-                        >
-                            <Table.HeadCell
-                                className={`text-center font-semibold  md:text-sm text-xs  ${theme === "dark" && "border-gray-500"
-                                    } `}
-                            >
-                                Updated on
-                            </Table.HeadCell>
+            <div className={wrapperClass}>
+                <ListingTable className="my-5">
+                    <ListingTable.Head className={headClass}>
+                        <ListingTable.HeadCell className="text-center font-semibold md:text-sm text-xs">Updated on</ListingTable.HeadCell>
+                        <ListingTable.HeadCell className="text-center font-semibold md:text-sm text-xs">Comments</ListingTable.HeadCell>
+                        <ListingTable.HeadCell className="text-center font-semibold md:text-sm text-xs">No.of likes</ListingTable.HeadCell>
+                        <ListingTable.HeadCell className="text-center font-semibold md:text-sm text-xs">Post Title</ListingTable.HeadCell>
+                        <ListingTable.HeadCell className="text-center font-semibold md:text-sm text-xs">Username</ListingTable.HeadCell>
+                        <ListingTable.HeadCell className="font-semibold md:text-sm text-xs">Delete</ListingTable.HeadCell>
+                    </ListingTable.Head>
 
-                            <Table.HeadCell
-                                className={` text-center font-semibold md:text-sm text-xs  ${theme === "dark" && "border-gray-500"
-                                    } `}
-                            >
-                                Comments
-                            </Table.HeadCell>
+                    {loader ? (
+                        <ListingTable.Body>
+                            <ListingTable.Row>
+                                <ListingTable.Cell colSpan={6} className="text-center py-10">
+                                    <Spinner />
+                                </ListingTable.Cell>
+                            </ListingTable.Row>
+                        </ListingTable.Body>
+                    ) : getAllComments.length === 0 ? (
+                        <ListingTable.Body>
+                            <ListingTable.Row>
+                                <ListingTable.Cell colSpan={6} className="text-center py-10 text-gray-500">
+                                    No comments found
+                                </ListingTable.Cell>
+                            </ListingTable.Row>
+                        </ListingTable.Body>
+                    ) : (
+                        getAllComments.map((comment) => (
+                            <ListingTable.Body key={comment._id}>
+                                <ListingTable.Row className={rowClass}>
+                                    <ListingTable.Cell className="text-center px-2 md:px-0 text-xs md:text-sm">
+                                        {new Date(comment.updatedAt).toLocaleDateString()}
+                                    </ListingTable.Cell>
 
-                            <Table.HeadCell
-                                className={` text-center font-semibold md:text-sm text-xs  ${theme === "dark" && "border-gray-500"
-                                    } `}
-                            >
-                                No.of likes
-                            </Table.HeadCell>
+                                    <ListingTable.Cell className="flex px-2 w-52 md:px-0 justify-center">
+                                        <NavLink to={comment.blogSlug ? `/blog/${comment.blogSlug}` : '/'}>
+                                            {comment.comment}
+                                        </NavLink>
+                                    </ListingTable.Cell>
 
-                            <Table.HeadCell
-                                className={`text-center font-semibold md:text-sm text-xs  ${theme === "dark" && "border-gray-500"
-                                    } `}
-                            >
-                                <span>Post Title</span>
-                            </Table.HeadCell>
+                                    <ListingTable.Cell className={`px-3 md:px-0 border-l border-r text-center text-xs md:text-sm ${theme === 'dark' ? 'text-gray-300 border-gray-700' : ''}`}>
+                                        {comment.likes?.length ?? 0}
+                                    </ListingTable.Cell>
 
-                            <Table.HeadCell
-                                className={`pr-2  md:pr-0 text-center font-semibold md:text-sm text-xs ${theme === "dark" && "border-gray-500"
-                                    } `}
-                            >
-                                Username
-                            </Table.HeadCell>
+                                    <ListingTable.Cell className="text-center md:px-0 px-5">
+                                        {comment.blogTitle}
+                                    </ListingTable.Cell>
 
-                            <Table.HeadCell
-                                className={`pl-2 md:pl-0 font-semibold md:text-sm text-xs  ${theme === "dark" && "border-gray-500"
-                                    } `}
-                            >
-                                Delete
-                            </Table.HeadCell>
-                        </Table.Head>
-                        {loader ? (
-                            <Spinner />
-                        ) : (
-                            <>
-                                {getAllComments.map((comments, index) => {
-                                    return (
-                                        <Table.Body key={index} className="">
-                                            <Table.Row key={index}
-                                                className={` text-xs md:text-sm  transition-all rounded-md  ${theme === "dark"
-                                                    ? "hover:bg-gray-800"
-                                                    : "hover:bg-slate-100"
-                                                    }`}
-                                            >
-                                                <Table.Cell className="text-center px-2 md:px-0 text-xs md:text-sm">
-                                                    {new Date(comments.updatedAt).toLocaleDateString()}
-                                                </Table.Cell>
+                                    <ListingTable.Cell className="text-xs px-5 md:px-0 md:text-sm text-center">
+                                        {comment.username}
+                                    </ListingTable.Cell>
 
-                                                <Table.Cell className="flex px-2 w-52 md:px-0 justify-center">
-                                                    <NavLink className="" to={comments.blogSlug ? `/blog/${comments.blogSlug}` : '/'}>
-                                                        <span className="">{comments.comment}</span>
-                                                    </NavLink>
-                                                </Table.Cell>
-
-                                                <Table.Cell
-                                                    className={`px-3 md:px-0 border-l border-r text-center text-xs md:text-sm ${theme === "dark" && "text-gray-300 border-gray-700"
-                                                        }`}
-                                                >
-                                                    <span>{comments.likes.length}</span>
-                                                </Table.Cell>
-
-                                                <Table.Cell className="text-center md:px-0 px-5">
-                                                    <span className="">{comments.blogTitle}</span>
-                                                </Table.Cell>
-
-                                                <Table.Cell className="text-xs px-5 md:px-0 md:text-sm text-center">
-                                                    <span>{comments.username}</span>
-                                                </Table.Cell>
-
-                                                <Table.Cell>
-                                                    <button
-                                                        className="text-red-500 px-3 md:px-0 hover:underline"
-                                                        onClick={() => {
-                                                            deleteUserHandle(comments._id);
-                                                        }}
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </Table.Cell>
-                                            </Table.Row>
-                                        </Table.Body>
-                                    );
-                                })}
-                            </>
-                        )}
-                    </Table>
-                )}
+                                    <ListingTable.Cell>
+                                        <button
+                                            type="button"
+                                            className="text-red-500 px-3 md:px-0 hover:underline"
+                                            onClick={() => deleteUserHandle(comment._id)}
+                                        >
+                                            Delete
+                                        </button>
+                                    </ListingTable.Cell>
+                                </ListingTable.Row>
+                            </ListingTable.Body>
+                        ))
+                    )}
+                </ListingTable>
 
                 {showMoreButton && (
-                    <div className="text-center my-5">
+                    <div className="text-center my-5 pb-4">
                         <button
+                            type="button"
                             onClick={showMoreCommentButton}
-                            className={`transition-all active:scale-95 hover:bg-blue-900 py-2 font-semibold text-sm px-2 border-2 rounded-md  ${theme === "dark"
-                                ? "bg-gray-700 active:bg-gray-800 text-gray-200 border-gray-400"
-                                : "active:bg-gray-600 active:text-white hover:text-white bg-gray-300 text-gray-800 border-gray-500"
-                                }`}
+                            className={`transition-all active:scale-95 hover:bg-blue-900 py-2 font-semibold text-sm px-2 border-2 rounded-md ${
+                                theme === 'dark'
+                                    ? 'bg-gray-700 active:bg-gray-800 text-gray-200 border-gray-400'
+                                    : 'active:bg-gray-600 active:text-white hover:text-white bg-gray-300 text-gray-800 border-gray-500'
+                            }`}
                         >
                             Show more..
                         </button>

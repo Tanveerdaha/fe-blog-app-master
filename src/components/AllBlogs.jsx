@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import apiClient from "../utils/apiClient";
 import { useSelector } from "react-redux";
-import { Table } from "flowbite-react";
 import { NavLink, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import BlogPopupModal from "./BlogPopupModal";
 import BlogLoader from "../assests/blogSpinner/BlogLoader";
 import getImageUrl from '../utils/getImageUrl';
 import AuthorLink from './AuthorLink';
+import ListingTable from './ListingTable';
 
 const AllBlogs = () => {
     const { user } = useSelector((state) => state.userSliceApp);
@@ -61,52 +61,52 @@ const AllBlogs = () => {
         <>
             {user && user.isAdmin ? (
                 <div
-                    className={`transition-all min-h-screen border my-2 mx-2 rounded-md w-full items-center md:mx-5 table-auto overflow-x-scroll scrollbar ${theme === "dark" ? "border-zinc-700" : "border-gray-300"}`}
+                    className={`transition-all min-h-0 border my-2 mx-2 rounded-md w-full md:mx-5 overflow-x-auto scrollbar ${theme === "dark" ? "border-zinc-700" : "border-gray-300"}`}
                 >
                     <div className="px-4 py-4">
                         <h1 className="text-xl font-semibold">All Blogs</h1>
                         <p className="text-sm text-gray-500 mt-1">View all posts. Delete only — editing is done by each blog owner.</p>
                     </div>
 
-                    <Table hoverable className="my-5">
-                        <Table.Head
+                    <ListingTable className="my-5">
+                        <ListingTable.Head
                             className={`text-base ${theme === "dark" ? "text-gray-100 bg-zinc-700" : "text-gray-700 bg-gray-300"}`}
                         >
-                            <Table.HeadCell className="md:text-sm text-xs px-5">Updated on</Table.HeadCell>
-                            <Table.HeadCell className="md:text-sm text-xs">Image</Table.HeadCell>
-                            <Table.HeadCell className="md:text-sm text-xs text-center">Blog Title</Table.HeadCell>
-                            <Table.HeadCell className="md:text-sm text-xs px-5">Author</Table.HeadCell>
-                            <Table.HeadCell className="md:text-sm text-xs px-5">Category</Table.HeadCell>
-                            <Table.HeadCell className="md:text-sm text-xs px-5">Delete</Table.HeadCell>
-                        </Table.Head>
+                            <ListingTable.HeadCell className="md:text-sm text-xs px-5">Updated on</ListingTable.HeadCell>
+                            <ListingTable.HeadCell className="md:text-sm text-xs">Image</ListingTable.HeadCell>
+                            <ListingTable.HeadCell className="md:text-sm text-xs text-center">Blog Title</ListingTable.HeadCell>
+                            <ListingTable.HeadCell className="md:text-sm text-xs px-5">Author</ListingTable.HeadCell>
+                            <ListingTable.HeadCell className="md:text-sm text-xs px-5">Category</ListingTable.HeadCell>
+                            <ListingTable.HeadCell className="md:text-sm text-xs px-5">Delete</ListingTable.HeadCell>
+                        </ListingTable.Head>
 
                         {loader ? (
-                            <Table.Body>
-                                <Table.Row>
-                                    <Table.Cell colSpan="6" className="text-center py-10">
+                            <ListingTable.Body>
+                                <ListingTable.Row>
+                                    <ListingTable.Cell colSpan="6" className="text-center py-10">
                                         <BlogLoader />
-                                    </Table.Cell>
-                                </Table.Row>
-                            </Table.Body>
+                                    </ListingTable.Cell>
+                                </ListingTable.Row>
+                            </ListingTable.Body>
                         ) : blogs.length === 0 ? (
-                            <Table.Body>
-                                <Table.Row>
-                                    <Table.Cell colSpan="6" className="text-center py-10">
+                            <ListingTable.Body>
+                                <ListingTable.Row>
+                                    <ListingTable.Cell colSpan="6" className="text-center py-10">
                                         No blogs found
-                                    </Table.Cell>
-                                </Table.Row>
-                            </Table.Body>
+                                    </ListingTable.Cell>
+                                </ListingTable.Row>
+                            </ListingTable.Body>
                         ) : (
                             blogs.map((blog) => (
-                                <Table.Body key={blog._id}>
-                                    <Table.Row
+                                <ListingTable.Body key={blog._id}>
+                                    <ListingTable.Row
                                         className={`text-center text-xs md:text-sm transition-all rounded-md ${theme === "dark" ? "hover:bg-gray-800" : "hover:bg-gray-100"}`}
                                     >
-                                        <Table.Cell className="text-xs md:text-sm">
+                                        <ListingTable.Cell className="text-xs md:text-sm">
                                             {new Date(blog.updatedAt).toLocaleDateString()}
-                                        </Table.Cell>
+                                        </ListingTable.Cell>
 
-                                        <Table.Cell className="flex justify-center">
+                                        <ListingTable.Cell className="flex justify-center">
                                             <NavLink to={`/blog/${blog.slug}`}>
                                                 <img
                                                     src={getImageUrl(blog.blogImgFile)}
@@ -114,28 +114,28 @@ const AllBlogs = () => {
                                                     className="w-10 h-10 md:w-20 md:h-14 object-cover rounded-md"
                                                 />
                                             </NavLink>
-                                        </Table.Cell>
+                                        </ListingTable.Cell>
 
-                                        <Table.Cell
+                                        <ListingTable.Cell
                                             className={`border-l border-r px-5 text-xs md:text-sm text-left ${theme === "dark" ? "text-gray-300 border-gray-700" : ""}`}
                                         >
                                             <NavLink to={`/blog/${blog.slug}`} className="hover:underline">
                                                 {blog.blogTitle}
                                             </NavLink>
-                                        </Table.Cell>
+                                        </ListingTable.Cell>
 
-                                        <Table.Cell className="text-xs md:text-sm">
+                                        <ListingTable.Cell className="text-xs md:text-sm">
                                             <AuthorLink
                                                 username={blog.authorUsername}
                                                 profilePicture={blog.authorProfilePicture}
                                             />
-                                        </Table.Cell>
+                                        </ListingTable.Cell>
 
-                                        <Table.Cell className="text-xs md:text-sm text-justify pl-5">
+                                        <ListingTable.Cell className="text-xs md:text-sm text-justify pl-5">
                                             {blog.blogCategory}
-                                        </Table.Cell>
+                                        </ListingTable.Cell>
 
-                                        <Table.Cell>
+                                        <ListingTable.Cell>
                                             <button
                                                 type="button"
                                                 className="text-red-500 hover:underline"
@@ -143,12 +143,12 @@ const AllBlogs = () => {
                                             >
                                                 Delete
                                             </button>
-                                        </Table.Cell>
-                                    </Table.Row>
-                                </Table.Body>
+                                        </ListingTable.Cell>
+                                    </ListingTable.Row>
+                                </ListingTable.Body>
                             ))
                         )}
-                    </Table>
+                    </ListingTable>
 
                     {showMoreButton && (
                         <div className="text-center my-5">

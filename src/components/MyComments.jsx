@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import apiClient from "../utils/apiClient";
 import { useSelector } from "react-redux";
-import { Table } from "flowbite-react";
 import { Link, NavLink } from "react-router-dom";
 import toast from "react-hot-toast";
 import BlogLoader from "../assests/blogSpinner/BlogLoader";
+import ListingTable from './ListingTable';
 
 const MyComments = () => {
     const { user } = useSelector((state) => state.userSliceApp);
@@ -46,7 +46,7 @@ const MyComments = () => {
         fetchComments(nextPage, true);
     };
 
-    const wrapperClass = `transition-all min-h-screen border my-2 mx-2 rounded-md w-full md:mx-5 overflow-x-auto scrollbar ${
+    const wrapperClass = `transition-all min-h-0 border my-2 mx-2 rounded-md w-full md:mx-5 overflow-x-auto scrollbar ${
         theme === "dark" ? "border-zinc-700" : "border-gray-300"
     }`;
 
@@ -67,44 +67,44 @@ const MyComments = () => {
             </div>
 
             <div className={wrapperClass}>
-                <Table hoverable className="my-5">
-                    <Table.Head className={headClass}>
-                        <Table.HeadCell className={theme === "dark" ? "border-gray-600" : ""}>Date</Table.HeadCell>
-                        <Table.HeadCell className={theme === "dark" ? "border-gray-600" : ""}>Comment</Table.HeadCell>
-                        <Table.HeadCell className={theme === "dark" ? "border-gray-600" : ""}>By</Table.HeadCell>
-                        <Table.HeadCell className={theme === "dark" ? "border-gray-600" : ""}>Blog</Table.HeadCell>
-                    </Table.Head>
+                <ListingTable className="my-5">
+                    <ListingTable.Head className={headClass}>
+                        <ListingTable.HeadCell className={theme === "dark" ? "border-gray-600" : ""}>Date</ListingTable.HeadCell>
+                        <ListingTable.HeadCell className={theme === "dark" ? "border-gray-600" : ""}>Comment</ListingTable.HeadCell>
+                        <ListingTable.HeadCell className={theme === "dark" ? "border-gray-600" : ""}>By</ListingTable.HeadCell>
+                        <ListingTable.HeadCell className={theme === "dark" ? "border-gray-600" : ""}>Blog</ListingTable.HeadCell>
+                    </ListingTable.Head>
 
                     {loader ? (
-                        <Table.Body>
-                            <Table.Row>
-                                <Table.Cell colSpan="4" className="text-center py-10">
+                        <ListingTable.Body>
+                            <ListingTable.Row>
+                                <ListingTable.Cell colSpan="4" className="text-center py-10">
                                     <BlogLoader />
-                                </Table.Cell>
-                            </Table.Row>
-                        </Table.Body>
+                                </ListingTable.Cell>
+                            </ListingTable.Row>
+                        </ListingTable.Body>
                     ) : comments.length === 0 ? (
-                        <Table.Body>
-                            <Table.Row>
-                                <Table.Cell
+                        <ListingTable.Body>
+                            <ListingTable.Row>
+                                <ListingTable.Cell
                                     colSpan="4"
                                     className={`text-center py-12 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
                                 >
                                     No comments on your blogs yet.
-                                </Table.Cell>
-                            </Table.Row>
-                        </Table.Body>
+                                </ListingTable.Cell>
+                            </ListingTable.Row>
+                        </ListingTable.Body>
                     ) : (
                         comments.map((comment) => (
-                            <Table.Body key={comment._id}>
-                                <Table.Row className={rowClass}>
-                                    <Table.Cell className={theme === "dark" ? "text-gray-200" : "text-gray-800"}>
+                            <ListingTable.Body key={comment._id}>
+                                <ListingTable.Row className={rowClass}>
+                                    <ListingTable.Cell className={theme === "dark" ? "text-gray-200" : "text-gray-800"}>
                                         {new Date(comment.createdAt).toLocaleDateString()}
-                                    </Table.Cell>
-                                    <Table.Cell className={`max-w-xs ${theme === "dark" ? "text-gray-200" : "text-gray-800"}`}>
+                                    </ListingTable.Cell>
+                                    <ListingTable.Cell className={`max-w-xs ${theme === "dark" ? "text-gray-200" : "text-gray-800"}`}>
                                         {comment.comment}
-                                    </Table.Cell>
-                                    <Table.Cell>
+                                    </ListingTable.Cell>
+                                    <ListingTable.Cell>
                                         {comment.username ? (
                                             <Link to={`/user/${comment.username}`} className="text-teal-500 hover:underline">
                                                 @{comment.username}
@@ -112,8 +112,8 @@ const MyComments = () => {
                                         ) : (
                                             <span className={theme === "dark" ? "text-gray-400" : "text-gray-500"}>Unknown</span>
                                         )}
-                                    </Table.Cell>
-                                    <Table.Cell>
+                                    </ListingTable.Cell>
+                                    <ListingTable.Cell>
                                         {comment.blogSlug ? (
                                             <NavLink to={`/blog/${comment.blogSlug}`} className="text-blue-500 hover:underline">
                                                 {comment.blogTitle}
@@ -123,12 +123,12 @@ const MyComments = () => {
                                                 {comment.blogTitle || "—"}
                                             </span>
                                         )}
-                                    </Table.Cell>
-                                </Table.Row>
-                            </Table.Body>
+                                    </ListingTable.Cell>
+                                </ListingTable.Row>
+                            </ListingTable.Body>
                         ))
                     )}
-                </Table>
+                </ListingTable>
 
                 {showMore && (
                     <div className="text-center my-5 pb-4">
